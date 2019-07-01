@@ -17,9 +17,18 @@ namespace One
         /*
         - Pedir o arquivo do ano anterior ECD 2018
         - Registo I050 (tirar duvidas do preenchimento)
+           - revisar a planilha excel... Nivel da conta....tem registros com codigo 5... Pela tabela vai até 4
+
+            Nível	Grupo/Conta
+            1	    Ativo
+            2	    Ativo Circulante
+            3	    Disponível
+            4	    Caixa
+
+
         - Registro I150 (verificar qual data inicial e data final)
-        - Verificar se é necessário preencher os registros I051, I052
-        - Enviar dados do Bloco J
+        - Verificar se é necessário preencher os registros I051, I052, I100
+        - Solicitar dados do Bloco J
 	        J005
 	        J100
 	        J150
@@ -63,14 +72,14 @@ namespace One
             }
         }
 
-
         private void button1_Click(object sender, EventArgs e)
         {
             string strDados = "";
-            MessageBox.Show(nomeEmpresa);
-            
+
             //Nome do Arquivo
-            string strPathFile = @"C:\temp\DesenvTeste\One\One\teste.xlsx";
+            //string strPathFile = @"C:\temp\DesenvTeste\One\One\teste.xlsx";
+            //string strPathFile = @"C:\temp\DesenvTeste\One\One\Blocos.xlsx";
+            string strPathFile = @"C:\temp\DesenvTeste\One\One\Blocos\Blocos2013.xls";
             string strPathTxt = @"C:\temp\DesenvTeste\One\One\WriteText.txt";
 
 
@@ -78,246 +87,61 @@ namespace One
               @"Provider=Microsoft.Jet.OLEDB.4.0;" +
               @"Data Source=" + strPathFile + "; " +
               @"Extended Properties='Excel 8.0;HDR=Yes;'";
-            using (OleDbConnection connection = new OleDbConnection(con))
+
+            //con = @"Provider = Microsoft.ACE.OLEDB.12.0; " +
+            //    @"Data Source = " + strPathFile + "; " +
+            //    @"Extended Properties = Excel 8.0; " +
+            //    @"providerName=Provider = Microsoft.ACE.OLEDB.12.0";
+
+            //String de conexão Excel 2003:
+            //@"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=CAMINHO_DO_XLS;Extended Properties='Excel 8.0;HDR=YES;'"
+
+            //String de conexão Excel 2007:
+            //@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=CAMINHO_DO_XLSX;Extended Properties='Excel 12.0 Xml;HDR=YES;'"
+
+            //String de conexão Excel 2013
+            //con =   @"Provider=Microsoft.ACE.OLEDB.14.0;" + 
+            //        @"Data Source = " + strPathFile + "; " +
+            //        @"Extended Properties='Excel 14.0;HDR=YES;IMEX=1'";
+
+            try
             {
-                connection.Open();
-                OleDbCommand command = new OleDbCommand("select * from [Plan3$]", connection);
-                using (OleDbDataReader dr = command.ExecuteReader())
+                using (OleDbConnection connection = new OleDbConnection(con))
                 {
-                    while (dr.Read())
-                    {
-                        var row1Col0 = dr[0];
-                        Console.WriteLine(row1Col0);
-                        strDados = strDados +
-                            dr["Nome"] + "|" +
-                            dr["Sobrenome"] + "|" +
-                            dr["Banco"] + Environment.NewLine;
-                    }
+                    connection.Open();
+
+                    strDados += preencheRegistro0000();
+                    strDados += preencheRegistro0001();
+                    strDados += preencheRegistro0007();
+                    strDados += preencheRegistro0990();
+                    strDados += preencheRegistoI001();
+                    strDados += preencheRegistroI010();
+                    strDados += preencheRegistroI030();
+                    strDados += preencheRegistroI200(connection);
+
+                    connection.Close();
+                }
+
+                if (!string.IsNullOrEmpty(strDados))
+                {
+                    geraTxt(strDados, strPathTxt);
+                    MessageBox.Show("Arquivo Gerado");
                 }
             }
-
-            if (!string.IsNullOrEmpty(strDados))
+            catch (Exception ex)
             {
-                geraTxt(strDados, strPathTxt);
+                MessageBox.Show("Ocorreu um erro, analise o erro abaixo:\r\n" + ex.Message);
+                throw;
             }
-
 
         }
 
         public string preencheBloco1(OleDbConnection arqExcel)
         {
-
             string strTxt = "";
             string stLimit = "|";
 
-            #region REGISTRO 0000
-            //01    REG
-            strTxt += stLimit;
-            strTxt += "0000";
-
-            //02    LECD
-            strTxt += stLimit;
-            strTxt += "LECD";
-
-            //03    DT_INI
-            strTxt += stLimit;
-            strTxt += "01012018";
-
-            //04	DT_FIN
-            strTxt += stLimit;
-            strTxt += "31122019";
-
-            //05	NOME
-            strTxt += stLimit;
-            strTxt += "OCEAN NETWORK EXPRESS";
-
-            //06	CNPJ
-            strTxt += stLimit;
-            strTxt += "OCEAN NETWORK EXPRESS (Latin America)";
-
-            //07	UF
-            strTxt += stLimit;
-            strTxt += "SP";
-
-            //08	IE
-            strTxt += stLimit;
-            strTxt += "";
-
-            //09	COD_MUN
-            strTxt += stLimit;
-            strTxt += "3550308";
-
-            //10	IM
-            strTxt += stLimit;
-            strTxt += "58353747";
-
-            //11	IND_SIT_ESP
-            strTxt += stLimit;
-            strTxt += "";
-
-            //12	IND_SIT_INI_PER
-            strTxt += stLimit;
-            strTxt += "0";
-
-            //13	IND_NIRE
-            strTxt += stLimit;
-            strTxt += "1";
-
-            //14	IND_FIN_ESC
-            strTxt += stLimit;
-            strTxt += "0";
-
-            //15	COD_HASH_SUB    ################
-            strTxt += stLimit;
-            strTxt += "";
-
-            //16	IND_GRANDE_PORTE
-            strTxt += stLimit;
-            strTxt += "0";
-
-            //17	TIP_ECD
-            strTxt += stLimit;
-            strTxt += "0";
-
-            //18	COD_SCP
-            strTxt += stLimit;
-            strTxt += "";
-
-            //19  IDENT_MF
-            strTxt += stLimit;
-            strTxt += "N";
-
-            //20  IND_ESC_CONS
-            strTxt += stLimit;
-            strTxt += "N";
-
-            // FINALIZA BLOCO 1
-            strTxt += stLimit;
-
-            strTxt += System.Environment.NewLine;
-            #endregion
-
-            #region REGISTRO 0001
-            //01    REG
-            strTxt += stLimit;
-            strTxt += "0001";
-
-            //02    IND_DAD
-            strTxt += stLimit;
-            strTxt += "0";
-
-            strTxt += System.Environment.NewLine;
-            #endregion
-
-            #region REGISTRO 0007
-            //01  REG
-            strTxt += stLimit;
-            strTxt += "0007";
-            
-            //02  COD_ENT _REF
-            strTxt += stLimit;
-            strTxt += "00";
-            
-            //03  COD_INSCR
-            strTxt += stLimit;
-            strTxt += "";
-
-            strTxt += System.Environment.NewLine;
-            #endregion
-
-            #region REGISTRO 0990
-            //01  REG
-            strTxt += stLimit;
-            strTxt += "0990";
-
-            //02  QTD_LIN_0   #########################
-            strTxt += stLimit;
-            strTxt += "7";
-
-            strTxt += System.Environment.NewLine;
-            #endregion
-
-            #region REGISTRO I001
-            //01  REG
-            strTxt += stLimit;
-            strTxt += "I001";
-
-            //02  IND_DAD
-            strTxt += stLimit;
-            strTxt += "0";
-            #endregion
-
-            #region REGISTRO I010
-            //01  REG
-            strTxt += stLimit;
-            strTxt += "I010";
-
-            //02  IND_ESC
-            strTxt += stLimit;
-            strTxt += "G";
-
-            //03  COD_VER_LC
-            strTxt += stLimit;
-            strTxt += "7.00";
-
-
-            strTxt += System.Environment.NewLine;
-            #endregion
-
-            #region REGISTRO I030
-            //01  REG
-            strTxt += stLimit;
-            strTxt += "I030";
-
-            //02  DNRC_ABERT
-            strTxt += stLimit;
-            strTxt += "TERMO DE ABERTURA";
-
-            //03  NUM_ORD
-            strTxt += stLimit;
-            strTxt += "2";
-
-            //04  NAT_LIVR
-            strTxt += stLimit;
-            strTxt += "DIARIO GERAL";
-
-            //05  QTD_LIN
-            strTxt += stLimit;
-            strTxt += "718.719";
-
-            //06  NOME
-            strTxt += stLimit;
-            strTxt += "OCEAN NETWORK EXPRESS (Latin America)";
-
-            //07  NIRE
-            strTxt += stLimit;
-            strTxt += "35235086630";
-
-            //08  CNPJ
-            strTxt += stLimit;
-            strTxt += "28689596000106";
-
-            //09  DT_ARQ
-            strTxt += stLimit;
-            strTxt += "01012018";
-
-            //10  DT_ARQ_CONV
-            strTxt += stLimit;
-            strTxt += "31122018";
-
-            //11  DESC_MUN
-            strTxt += stLimit;
-            strTxt += "SAO PAULO";
-
-            //12  DT_EX_SOCIAL
-            strTxt += stLimit;
-            strTxt += "31122018";
-
-
-            strTxt += System.Environment.NewLine;
-            #endregion
-
-            #region REGISTRO I050   ######################
+            #region REGISTRO I050   ###################### tirar duvida preenchimento plano de conta
             //01  REG
             strTxt += stLimit;
             strTxt += "I050";
@@ -361,6 +185,7 @@ namespace One
             //02  COD_PLAN_REF
 
             //03  COD_CCUS
+
             //04  COD_CTA_REF
 
 
@@ -375,6 +200,10 @@ namespace One
 
             strTxt += System.Environment.NewLine;
             #endregion REGISTRO I100
+
+            #region REGISTRO I100 (fazer????)
+
+            #endregion
 
             #region REGISTRO I150  ##################
             //01  REG
@@ -394,20 +223,30 @@ namespace One
             strTxt += System.Environment.NewLine;
             #endregion
 
-            #region REGISTRO I200 (pendente)
+            #region REGISTRO I200 (pendente) - lancamentos
             //01  REG
             strTxt += stLimit;
             strTxt += "I200";
 
             //02  NUM_LCTO
+            strTxt += stLimit;
+            strTxt += "";
 
             //03  DT_LCTO
+            strTxt += stLimit;
+            strTxt += "";
 
             //04  VL_LCTO
+            strTxt += stLimit;
+            strTxt += "";
 
             //05  IND_LCTO
+            strTxt += stLimit;
+            strTxt += "";
 
             //06  DT_LCTO_EXT
+            strTxt += stLimit;
+            strTxt += "";
 
 
             strTxt += System.Environment.NewLine;
@@ -567,10 +406,319 @@ namespace One
             return strTxt;
         }
 
-        public string preencheBloco7(OleDbConnection arqExcel)
+        public string preencheRegistroI030()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region REGISTRO I030
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I030";
+
+            //02  DNRC_ABERT
+            strTxt += stLimit;
+            strTxt += "TERMO DE ABERTURA";
+
+            //03  NUM_ORD
+            strTxt += stLimit;
+            strTxt += "2";
+
+            //04  NAT_LIVR
+            strTxt += stLimit;
+            strTxt += "DIARIO GERAL";
+
+            //05  QTD_LIN
+            strTxt += stLimit;
+            strTxt += "718.719";
+
+            //06  NOME
+            strTxt += stLimit;
+            strTxt += "OCEAN NETWORK EXPRESS (Latin America)";
+
+            //07  NIRE
+            strTxt += stLimit;
+            strTxt += "35235086630";
+
+            //08  CNPJ
+            strTxt += stLimit;
+            strTxt += "28689596000106";
+
+            //09  DT_ARQ
+            strTxt += stLimit;
+            strTxt += "01012018";
+
+            //10  DT_ARQ_CONV
+            strTxt += stLimit;
+            strTxt += "31122018";
+
+            //11  DESC_MUN
+            strTxt += stLimit;
+            strTxt += "SAO PAULO";
+
+            //12  DT_EX_SOCIAL
+            strTxt += stLimit;
+            strTxt += "31122018";
+
+
+            strTxt += System.Environment.NewLine;
+            #endregion
+
+            return strTxt;
+        }
+
+        public string preencheRegistroI010()
         {
 
-            return "";
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region REGISTRO I010
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I010";
+
+            //02  IND_ESC
+            strTxt += stLimit;
+            strTxt += "G";
+
+            //03  COD_VER_LC
+            strTxt += stLimit;
+            strTxt += "7.00";
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+            #endregion
+
+            return strTxt;
+        }
+
+        public string preencheRegistoI001()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region REGISTRO I001
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I001";
+
+            //02  IND_DAD
+            strTxt += stLimit;
+            strTxt += "0";
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+            #endregion
+
+            return strTxt;
+        }
+
+        public string preencheRegistro0990()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region REGISTRO 0990
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "0990";
+
+            //02  QTD_LIN_0   #########################
+            strTxt += stLimit;
+            strTxt += "4";
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+            #endregion
+
+            return strTxt;
+        }
+
+        public string preencheRegistro0007()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region REGISTRO 0007
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "0007";
+
+            //02  COD_ENT _REF
+            strTxt += stLimit;
+            strTxt += "00";
+
+            //03  COD_INSCR
+            strTxt += stLimit;
+            strTxt += "";
+
+            strTxt += System.Environment.NewLine;
+            #endregion
+
+            return strTxt;
+        }
+
+        public string preencheRegistro0001()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region REGISTRO 0001
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "0001";
+
+            //02    IND_DAD
+            strTxt += stLimit;
+            strTxt += "0";
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+            #endregion
+            return strTxt;
+        }
+
+        public string preencheRegistro0000()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region REGISTRO 0000
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "0000";
+
+            //02    LECD
+            strTxt += stLimit;
+            strTxt += "LECD";
+
+            //03    DT_INI
+            strTxt += stLimit;
+            strTxt += "01012018";
+
+            //04	DT_FIN
+            strTxt += stLimit;
+            strTxt += "31122019";
+
+            //05	NOME
+            strTxt += stLimit;
+            strTxt += "OCEAN NETWORK EXPRESS";
+
+            //06	CNPJ
+            strTxt += stLimit;
+            strTxt += "OCEAN NETWORK EXPRESS (Latin America)";
+
+            //07	UF
+            strTxt += stLimit;
+            strTxt += "SP";
+
+            //08	IE
+            strTxt += stLimit;
+            strTxt += "";
+
+            //09	COD_MUN
+            strTxt += stLimit;
+            strTxt += "3550308";
+
+            //10	IM
+            strTxt += stLimit;
+            strTxt += "58353747";
+
+            //11	IND_SIT_ESP
+            strTxt += stLimit;
+            strTxt += "";
+
+            //12	IND_SIT_INI_PER
+            strTxt += stLimit;
+            strTxt += "0";
+
+            //13	IND_NIRE
+            strTxt += stLimit;
+            strTxt += "1";
+
+            //14	IND_FIN_ESC
+            strTxt += stLimit;
+            strTxt += "0";
+
+            //15	COD_HASH_SUB    ################
+            strTxt += stLimit;
+            strTxt += "";
+
+            //16	IND_GRANDE_PORTE
+            strTxt += stLimit;
+            strTxt += "0";
+
+            //17	TIP_ECD
+            strTxt += stLimit;
+            strTxt += "0";
+
+            //18	COD_SCP
+            strTxt += stLimit;
+            strTxt += "";
+
+            //19  IDENT_MF
+            strTxt += stLimit;
+            strTxt += "N";
+
+            //20  IND_ESC_CONS
+            strTxt += stLimit;
+            strTxt += "N";
+
+            // FINALIZA BLOCO 1
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+            #endregion
+
+            return strTxt;
+        }
+
+        public string preencheRegistroI200(OleDbConnection arqExcel)
+        {
+            string strRetorno = "";
+
+            // Exemplo Retorno Registo I200
+            // | I200 | 1000 | 02052015 | 5000,00 | N ||
+
+            DataTable dataTable = new DataTable();
+            OleDbCommand command = new OleDbCommand("SELECT * FROM [I200 e I250Lançamentos$] ", arqExcel);
+            OleDbDataAdapter adapter = new OleDbDataAdapter(command);
+            adapter.Fill(dataTable);
+
+            var rows = (from p in dataTable.AsEnumerable()
+                        where p[6].ToString() != "Centro de Custo"
+                        orderby p[0]
+                        select new
+                       {
+                           dataLancamento = p[0],
+                           contaDebitoCredito = p[1],
+                           flgDebitoCredito = p[2],
+                           arquivamento = p[3],
+                           vlLancamento = p [4],
+                           centroCusto = p[6],
+                           historico = p[7],
+                           tipoLancamento = p[8]
+                       }).ToList();
+
+            int i = 0;
+            foreach (var item in rows)
+            {
+                i++;
+                strRetorno += "|I200|" +
+                    i.ToString() + "|" +
+                    String.Format("{0:dd/MM/yyyy}", item.dataLancamento) + "|" + // Data Lcto
+                    String.Format("{0:N}", item.vlLancamento).Replace(".","") + "|" +  // Vl Lcto
+                    "N" + "|" +  // Lancamento Normal
+                    Environment.NewLine;
+            }
+
+
+            return strRetorno;
         }
     }
 }
