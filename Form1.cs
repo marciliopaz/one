@@ -26,7 +26,12 @@ namespace One
             4	    Caixa
 
 
-        - Registro I150 (verificar qual data inicial e data final)
+        - Registro I150 (verificar qual data inicial e data final) 01/01/2018 31/01/2018
+        - Embaixo do registro acima informar o registro I155
+
+        - Registro I150 (verificar qual data inicial e data final) 01/02/2018 28/02/2018
+        - Embaixo do registro acima informar o registro I155
+
         - Verificar se é necessário preencher os registros I051, I052, I100
         - Solicitar dados do Bloco J
 	        J005
@@ -106,6 +111,8 @@ namespace One
 
             try
             {
+
+
                 using (OleDbConnection connection = new OleDbConnection(con))
                 {
                     connection.Open();
@@ -114,13 +121,24 @@ namespace One
                     strDados += preencheRegistro0001();
                     strDados += preencheRegistro0007();
                     strDados += preencheRegistro0990();
-                    strDados += preencheRegistoI001();
+                    strDados += preencheRegistroI001();
                     strDados += preencheRegistroI010();
                     strDados += preencheRegistroI030();
-                    strDados += preencheRegistroI200(connection);
+                    strDados += preencheRegistroI050();
+
+                    strDados += preencheRegistroI155();
+
+                    // preencheRegistroI52();// Falta finalizar
+                    // preencheRegistroI100(); // Falta finalizar
+
+
+                    //strDados += preencheRegistroI200(connection);
 
                     connection.Close();
+
                 }
+
+
 
                 if (!string.IsNullOrEmpty(strDados))
                 {
@@ -406,6 +424,294 @@ namespace One
             return strTxt;
         }
 
+
+        public string preencheRegistroI155()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            string strPathFile = @"C:\temp\DesenvTeste\One\One\Blocos\BlocoI150.xls";
+
+            string strCon =
+              @"Provider=Microsoft.Jet.OLEDB.4.0;" +
+              @"Data Source=" + strPathFile + "; " +
+              @"Extended Properties='Excel 8.0;HDR=Yes;'";
+
+            DataTable dataTable = new DataTable();
+            using (OleDbConnection connI150file = new OleDbConnection(strCon))
+            {
+                connI150file.Open();
+
+                OleDbCommand command = new OleDbCommand("SELECT * FROM [I150$] ", connI150file);
+                OleDbDataAdapter adapter = new OleDbDataAdapter(command);
+                adapter.Fill(dataTable);
+
+                connI150file.Close();
+            }
+
+            var rowsI155 = (from p in dataTable.AsEnumerable()
+                            select new
+                            {
+                                dtIniSaldo = p[0],
+                                dtFimSaldo = p[1],
+                                codConta = p[2],
+                                codCentroCusto = p[3],
+                                saldoInicial = p[4],
+                                sitSaldo = p[5],
+                                totalDebito = p[6],
+                                totalCredito = p[7],
+                                saldoFinal = p[8],
+                                sitSaldoFinal = p[9]
+                            }
+                            ).ToList();
+
+            int i = 0;
+            foreach (var item in rowsI155)
+            {
+                if (!string.IsNullOrEmpty(item.dtIniSaldo.ToString()))
+                {
+                    Console.WriteLine(
+                        item.dtIniSaldo + " " +
+                        item.dtFimSaldo + " " +
+                        item.codConta + " " +
+                        item.codCentroCusto + " " +
+                        item.saldoInicial + " "+
+                        item.saldoFinal + " "
+                        );
+                    i++;
+
+                    // cria a linha 150
+
+                    // cria a linha 155
+                    strTxt +=
+                        criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo, 
+                        item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal);
+                }
+            }
+
+
+            return strTxt;
+        }
+
+        public string preencheRegistroI150(string dtIni, string dtFim)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I150";
+
+            //02  DT_INI
+            strTxt += stLimit;
+            strTxt += dtIni;
+
+            //03  DT_FIN
+            strTxt += stLimit;
+            strTxt += dtFim;
+
+
+            strTxt += stLimit;
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+
+        public String preencheRegistroI100() // Centro de Custo
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I100";
+
+            //02  DT_ALT
+            strTxt += stLimit;
+            strTxt += "01012018";
+
+            //03  COD_CCUS
+            strTxt += stLimit;
+            strTxt += " 11101000";
+
+            //04  CCUS
+            strTxt += stLimit;
+            strTxt += "BR01SAOZ01";
+
+            strTxt += stLimit;
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+
+        public string preencheRegistroI050()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            string strPathFile = @"C:\temp\DesenvTeste\One\One\Blocos\BlocoI.xls";
+
+            string strCon =
+              @"Provider=Microsoft.Jet.OLEDB.4.0;" +
+              @"Data Source=" + strPathFile + "; " +
+              @"Extended Properties='Excel 8.0;HDR=Yes;'";
+
+            DataTable dataTable = new DataTable();
+            using (OleDbConnection connI050file = new OleDbConnection(strCon))
+            {
+                connI050file.Open();
+
+                OleDbCommand command = new OleDbCommand("SELECT * FROM [I050$] ", connI050file);
+                OleDbDataAdapter adapter = new OleDbDataAdapter(command);
+                adapter.Fill(dataTable);
+
+                connI050file.Close();
+            }
+
+            var rowsI050 = (from p in dataTable.AsEnumerable()
+                            select new
+                            {
+                                dtInclusao = p[0],
+                                codConta = p[1],
+                                descrConta = p[2],  
+                                indicadorConta = p[3],
+                                indicadorNatureza = p[4],
+                                nivel  = p[5],
+                                codNivelSup = p[6],
+                                codPlanoRef = p[7],
+                                codConta2  = p[8],
+                                codCentroCusto  = p[9],   
+                                codCentroCusto2 = p[10],   
+                                codAglut = p[11]
+                            }
+                            ).ToList();
+
+            int i = 0;
+            foreach (var item in rowsI050)
+            {
+                if (! string.IsNullOrEmpty(item.codConta.ToString()) )
+                {
+                    Console.WriteLine(
+                        item.dtInclusao + " " +
+                        item.codConta + " " +
+                        item.descrConta + " " +
+                        item.indicadorConta + " "
+                        );
+                    i++;
+                }
+            }
+
+            #region Trazer NIVEL 1
+            var rowNivel1 = (from n1 in rowsI050
+                             where n1.nivel.ToString() == "1"
+                             select n1).ToList();
+
+            foreach (var item in rowNivel1)
+            {
+                strTxt += criaLinhaI050( item.dtInclusao
+                                , item.indicadorNatureza
+                                , item.indicadorConta
+                                , item.nivel
+                                , item.codConta
+                                , ""
+                                , item.descrConta
+                             );
+            }
+
+            #endregion
+
+            #region Trazer NIVEL 2
+            var rowNivel2 = (from n2 in rowsI050
+                             where n2.nivel.ToString() == "2"
+                             select n2).ToList();
+
+            foreach (var item in rowNivel2)
+            {
+                strTxt += criaLinhaI050(item.dtInclusao
+                                , item.indicadorNatureza
+                                , item.indicadorConta
+                                , item.nivel
+                                , item.codConta
+                                , item.codNivelSup
+                                , item.descrConta
+                             );
+            }
+            #endregion
+
+            #region Trazer NIVEL 3
+            var rowNivel3 = (from n3 in rowsI050
+                             where n3.nivel.ToString() == "3"
+                             select n3).ToList();
+
+            foreach (var item in rowNivel3)
+            {
+                strTxt += criaLinhaI050(item.dtInclusao
+                                , item.indicadorNatureza
+                                , item.indicadorConta
+                                , item.nivel
+                                , item.codConta
+                                , item.codNivelSup
+                                , item.descrConta
+                             );
+            }
+            #endregion
+
+            #region Trazer NIVEL 4
+            var rowNivel4 = (from n4 in rowsI050
+                             where n4.nivel.ToString() == "4"
+                             select n4).ToList();
+
+            foreach (var item in rowNivel4)
+            {
+                strTxt += criaLinhaI050(item.dtInclusao
+                                , item.indicadorNatureza
+                                , item.indicadorConta
+                                , item.nivel
+                                , item.codConta
+                                , item.codNivelSup
+                                , item.descrConta
+                             );
+            }
+            #endregion
+
+            #region Trazer NIVEL 5
+            var rowNivel5 = (from n5 in rowsI050
+                             where n5.nivel.ToString() == "5"
+                             select n5).ToList();
+
+            foreach (var item in rowNivel5)
+            {
+                // Preenche registro I050 nivel 5
+                strTxt += criaLinhaI050(item.dtInclusao
+                                , item.indicadorNatureza
+                                , item.indicadorConta
+                                , item.nivel
+                                , item.codConta
+                                , item.codNivelSup
+                                , item.descrConta
+                             );
+                // Preenche registro I052
+                //01  REG
+                strTxt += stLimit;
+                strTxt += "I052";
+
+                //02  COD_CCUS
+                strTxt += stLimit;
+                strTxt +=  item.codCentroCusto2.ToString().Trim();
+
+                //03 COD_AGL
+                strTxt += stLimit;
+                strTxt += item.codAglut.ToString().ToUpper().Trim();
+
+                strTxt += stLimit;
+                strTxt += System.Environment.NewLine;
+            }
+
+            #endregion
+
+            return strTxt;
+        }
+
         public string preencheRegistroI030()
         {
             string strTxt = "";
@@ -426,15 +732,15 @@ namespace One
 
             //04  NAT_LIVR
             strTxt += stLimit;
-            strTxt += "DIARIO GERAL";
+            strTxt += "G - DIARIO GERAL";
 
             //05  QTD_LIN
             strTxt += stLimit;
-            strTxt += "718.719";
+            strTxt += "718719";
 
             //06  NOME
             strTxt += stLimit;
-            strTxt += "OCEAN NETWORK EXPRESS (Latin America)";
+            strTxt += "OCEAN NETWORK EXPRESS (LATIN AMERICA)";
 
             //07  NIRE
             strTxt += stLimit;
@@ -460,6 +766,7 @@ namespace One
             strTxt += stLimit;
             strTxt += "31122018";
 
+            strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
             #endregion
@@ -494,7 +801,7 @@ namespace One
             return strTxt;
         }
 
-        public string preencheRegistoI001()
+        public string preencheRegistroI001()
         {
             string strTxt = "";
             string stLimit = "|";
@@ -550,11 +857,14 @@ namespace One
 
             //02  COD_ENT _REF
             strTxt += stLimit;
-            strTxt += "00";
+            strTxt += "SP";
 
             //03  COD_INSCR
             strTxt += stLimit;
-            strTxt += "";
+            strTxt += "112066369116";
+
+            // FINALIZA REGISTRO 0007
+            strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
             #endregion
@@ -603,15 +913,15 @@ namespace One
 
             //04	DT_FIN
             strTxt += stLimit;
-            strTxt += "31122019";
+            strTxt += "31122018";
 
             //05	NOME
             strTxt += stLimit;
-            strTxt += "OCEAN NETWORK EXPRESS";
+            strTxt += "OCEAN NETWORK EXPRESS (LATIN AMERICA)";
 
             //06	CNPJ
             strTxt += stLimit;
-            strTxt += "OCEAN NETWORK EXPRESS (Latin America)";
+            strTxt += "28689596000106";
 
             //07	UF
             strTxt += stLimit;
@@ -619,7 +929,7 @@ namespace One
 
             //08	IE
             strTxt += stLimit;
-            strTxt += "";
+            strTxt += "112066369116";
 
             //09	COD_MUN
             strTxt += stLimit;
@@ -690,9 +1000,9 @@ namespace One
             OleDbDataAdapter adapter = new OleDbDataAdapter(command);
             adapter.Fill(dataTable);
 
-            var rows = (from p in dataTable.AsEnumerable()
-                        where p[6].ToString() != "Centro de Custo"
-                        orderby p[0]
+            var rows = (     from p in dataTable.AsEnumerable()
+                             where p[6].ToString() != "Centro de Custo"
+                           orderby p[0]
                         select new
                        {
                            dataLancamento = p[0],
@@ -711,8 +1021,8 @@ namespace One
                 i++;
                 strRetorno += "|I200|" +
                     i.ToString() + "|" +
-                    String.Format("{0:dd/MM/yyyy}", item.dataLancamento) + "|" + // Data Lcto
-                    String.Format("{0:N}", item.vlLancamento).Replace(".","") + "|" +  // Vl Lcto
+                    string.Format("{0:dd/MM/yyyy}", item.dataLancamento) + "|" + // Data Lcto
+                    string.Format("{0:N}", item.vlLancamento).Replace(".","") + "|" +  // Vl Lcto
                     "N" + "|" +  // Lancamento Normal
                     Environment.NewLine;
             }
@@ -720,7 +1030,117 @@ namespace One
 
             return strRetorno;
         }
+
+        public string criaLinhaI050( object dtInclusao
+            , object indicadorNatureza
+            , object indicadorConta
+            , object nivel 
+            , object codConta
+            , object codNivelSup
+            , object descrConta)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I050";
+
+            //02  DT_ALT #########################
+            strTxt += stLimit;
+            strTxt += dtInclusao.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
+
+            //03  COD_NAT (Indicador de Natureza)
+            strTxt += stLimit;
+            strTxt += indicadorNatureza.ToString();
+
+            //04  IND_CTA (Analitico / Sintetico (A/S))
+            strTxt += stLimit;
+            strTxt += indicadorConta.ToString().Substring(0, 1);
+
+            //05  NIVEL
+            strTxt += stLimit;
+            strTxt += nivel.ToString();
+
+            //06  COD_CTA
+            strTxt += stLimit;
+            strTxt += codConta.ToString();
+
+            //07  COD_CTA_SUP (Codigo Nivel superior)
+            strTxt += stLimit;
+            strTxt += codNivelSup.ToString();
+
+            //08  CTA (Descricao da Conta)
+            strTxt += stLimit;
+            strTxt += descrConta.ToString().ToUpper().Trim();
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+
+        public string criaLinhaI155(object codConta
+              , object codCentroCusto
+              , object saldoInicial
+              , object sitSaldo
+              , object totalDebito
+              , object totalCredito
+              , object saldoFinal
+              , object sitSaldoFinal
+            )
+
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region RegistroI155
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I155";
+
+            //02  COD_CTA
+            strTxt += stLimit;
+            strTxt += codConta;
+
+            //03  COD_CCUS
+            strTxt += stLimit;
+            strTxt += codCentroCusto;
+
+            //04  VL_SLD_INI
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", saldoInicial).Replace(".", "").Replace("-","");
+
+            //05  IND_DC_INI
+            strTxt += stLimit;
+            strTxt += sitSaldo;
+
+            //06  VL_DEB
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", totalDebito).Replace(".", "").Replace("-", "");
+
+            //07  VL_CRED
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", totalCredito).Replace(".", "").Replace("-", "");
+
+            //08  VL_SLD_FIN
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", saldoFinal).Replace(".", "").Replace("-", "");
+
+            //09  IND_DC_FIN
+            strTxt += stLimit;
+            strTxt += sitSaldoFinal;
+
+
+            strTxt += stLimit;
+            strTxt += System.Environment.NewLine;
+            #endregion
+
+            return strTxt;
+        }
     }
+
 }
 
 
