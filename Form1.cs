@@ -79,6 +79,8 @@ namespace One
 
         private void button1_Click(object sender, EventArgs e)
         {
+            progressBar1.Value = 0;
+
             string strDados = "";
 
             //Nome do Arquivo
@@ -118,18 +120,24 @@ namespace One
                     connection.Open();
 
                     strDados += preencheRegistro0000();
+                    progressBar1.Value += 10;
                     strDados += preencheRegistro0001();
+                    progressBar1.Value += 10;
                     strDados += preencheRegistro0007();
+                    progressBar1.Value += 10;
                     strDados += preencheRegistro0990();
+                    progressBar1.Value += 10;
                     strDados += preencheRegistroI001();
+                    progressBar1.Value += 10;
                     strDados += preencheRegistroI010();
+                    progressBar1.Value += 10;
                     strDados += preencheRegistroI030();
+                    progressBar1.Value += 10;
                     strDados += preencheRegistroI050();
-
-                    strDados += preencheRegistroI155();
-
-                    // preencheRegistroI52();// Falta finalizar
+                    progressBar1.Value += 20;
                     // preencheRegistroI100(); // Falta finalizar
+                    strDados += preencheRegistroI155();
+                    progressBar1.Value += 10;
 
 
                     //strDados += preencheRegistroI200(connection);
@@ -137,8 +145,6 @@ namespace One
                     connection.Close();
 
                 }
-
-
 
                 if (!string.IsNullOrEmpty(strDados))
                 {
@@ -179,7 +185,7 @@ namespace One
             //05  NIVEL
             strTxt += stLimit;
             strTxt += "";
-            
+
             //06  COD_CTA
             strTxt += stLimit;
             strTxt += "";
@@ -373,7 +379,7 @@ namespace One
             //02  DNRC_ENCER
             strTxt += stLimit;
             strTxt += "TERMO DE ENCERRAMENTO";
-            
+
             //03  NUM_ORD
             //04  NAT_LIVRO
             //05  NOME
@@ -428,10 +434,7 @@ namespace One
         public string preencheRegistroI155()
         {
             string strTxt = "";
-            string stLimit = "|";
-
             string strPathFile = @"C:\temp\DesenvTeste\One\One\Blocos\BlocoI150.xls";
-
             string strCon =
               @"Provider=Microsoft.Jet.OLEDB.4.0;" +
               @"Data Source=" + strPathFile + "; " +
@@ -463,8 +466,11 @@ namespace One
                                 saldoFinal = p[8],
                                 sitSaldoFinal = p[9]
                             }
-                            ).ToList();
+                            )
+                            .ToList();
 
+
+            string ctrlPeriodo = "";
             int i = 0;
             foreach (var item in rowsI155)
             {
@@ -475,20 +481,87 @@ namespace One
                         item.dtFimSaldo + " " +
                         item.codConta + " " +
                         item.codCentroCusto + " " +
-                        item.saldoInicial + " "+
+                        item.saldoInicial + " " +
                         item.saldoFinal + " "
                         );
                     i++;
 
-                    // cria a linha 150
-
-                    // cria a linha 155
-                    strTxt +=
-                        criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo, 
-                        item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal);
+                    if (item.dtIniSaldo.ToString() != ctrlPeriodo)
+                    {
+                        ctrlPeriodo = item.dtIniSaldo.ToString();
+                        // cria a linha 150
+                        strTxt += preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString());
+                    }
+                    else
+                    {
+                        ctrlPeriodo = item.dtIniSaldo.ToString();
+                        // cria a linha 155
+                        strTxt +=
+                            criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
+                            item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal);
+                    }
                 }
             }
 
+
+            return strTxt;
+        }
+
+        public string criaLinhaI155(object codConta
+              , object codCentroCusto
+              , object saldoInicial
+              , object sitSaldo
+              , object totalDebito
+              , object totalCredito
+              , object saldoFinal
+              , object sitSaldoFinal
+            )
+
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            #region RegistroI155
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I155";
+
+            //02  COD_CTA
+            strTxt += stLimit;
+            strTxt += codConta;
+
+            //03  COD_CCUS
+            strTxt += stLimit;
+            strTxt += codCentroCusto;
+
+            //04  VL_SLD_INI
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", saldoInicial).Replace(".", "").Replace("-", "");
+
+            //05  IND_DC_INI
+            strTxt += stLimit;
+            strTxt += sitSaldo;
+
+            //06  VL_DEB
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", totalDebito).Replace(".", "").Replace("-", "");
+
+            //07  VL_CRED
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", totalCredito).Replace(".", "").Replace("-", "");
+
+            //08  VL_SLD_FIN
+            strTxt += stLimit;
+            strTxt += string.Format("{0:N}", saldoFinal).Replace(".", "").Replace("-", "");
+
+            //09  IND_DC_FIN
+            strTxt += stLimit;
+            strTxt += sitSaldoFinal;
+
+
+            strTxt += stLimit;
+            strTxt += System.Environment.NewLine;
+            #endregion
 
             return strTxt;
         }
@@ -504,11 +577,11 @@ namespace One
 
             //02  DT_INI
             strTxt += stLimit;
-            strTxt += dtIni;
+            strTxt += dtIni.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
 
             //03  DT_FIN
             strTxt += stLimit;
-            strTxt += dtFim;
+            strTxt += dtFim.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
 
 
             strTxt += stLimit;
@@ -517,7 +590,7 @@ namespace One
             return strTxt;
         }
 
-        public String preencheRegistroI100() // Centro de Custo
+        public string preencheRegistroI100() // Centro de Custo
         {
             string strTxt = "";
             string stLimit = "|";
@@ -539,6 +612,84 @@ namespace One
             strTxt += "BR01SAOZ01";
 
             strTxt += stLimit;
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+
+        public string criaLinhaI051(object codPlanoRef, object codCentroCusto, object codConta2)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I051";
+
+            //02  COD_PLAN_REF
+            strTxt += stLimit;
+            strTxt += codPlanoRef.ToString().Substring(0, 1);
+
+            //03  COD_CCUS
+            strTxt += stLimit;
+            strTxt += codCentroCusto.ToString();
+
+            //04  COD_CTA_REF
+            strTxt += stLimit;
+            strTxt += codConta2.ToString();
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+
+        public string criaLinhaI050(object dtInclusao
+            , object indicadorNatureza
+            , object indicadorConta
+            , object nivel
+            , object codConta
+            , object codNivelSup
+            , object descrConta)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I050";
+
+            //02  DT_ALT #########################
+            strTxt += stLimit;
+            strTxt += dtInclusao.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
+
+            //03  COD_NAT (Indicador de Natureza)
+            strTxt += stLimit;
+            strTxt += indicadorNatureza.ToString();
+
+            //04  IND_CTA (Analitico / Sintetico (A/S))
+            strTxt += stLimit;
+            strTxt += indicadorConta.ToString().Substring(0, 1);
+
+            //05  NIVEL
+            strTxt += stLimit;
+            strTxt += nivel.ToString();
+
+            //06  COD_CTA
+            strTxt += stLimit;
+            strTxt += codConta.ToString();
+
+            //07  COD_CTA_SUP (Codigo Nivel superior)
+            strTxt += stLimit;
+            strTxt += codNivelSup.ToString();
+
+            //08  CTA (Descricao da Conta)
+            strTxt += stLimit;
+            strTxt += descrConta.ToString().ToUpper().Trim();
+
+            strTxt += stLimit;
+
             strTxt += System.Environment.NewLine;
 
             return strTxt;
@@ -573,15 +724,15 @@ namespace One
                             {
                                 dtInclusao = p[0],
                                 codConta = p[1],
-                                descrConta = p[2],  
+                                descrConta = p[2],
                                 indicadorConta = p[3],
                                 indicadorNatureza = p[4],
-                                nivel  = p[5],
+                                nivel = p[5],
                                 codNivelSup = p[6],
                                 codPlanoRef = p[7],
-                                codConta2  = p[8],
-                                codCentroCusto  = p[9],   
-                                codCentroCusto2 = p[10],   
+                                codConta2 = p[8],
+                                codCentroCusto = p[9],
+                                codCentroCusto2 = p[10],
                                 codAglut = p[11]
                             }
                             ).ToList();
@@ -589,7 +740,7 @@ namespace One
             int i = 0;
             foreach (var item in rowsI050)
             {
-                if (! string.IsNullOrEmpty(item.codConta.ToString()) )
+                if (!string.IsNullOrEmpty(item.codConta.ToString()))
                 {
                     Console.WriteLine(
                         item.dtInclusao + " " +
@@ -608,7 +759,7 @@ namespace One
 
             foreach (var item in rowNivel1)
             {
-                strTxt += criaLinhaI050( item.dtInclusao
+                strTxt += criaLinhaI050(item.dtInclusao
                                 , item.indicadorNatureza
                                 , item.indicadorConta
                                 , item.nivel
@@ -616,6 +767,7 @@ namespace One
                                 , ""
                                 , item.descrConta
                              );
+                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
             }
 
             #endregion
@@ -635,6 +787,7 @@ namespace One
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
             }
             #endregion
 
@@ -653,6 +806,7 @@ namespace One
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
             }
             #endregion
 
@@ -671,6 +825,7 @@ namespace One
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
             }
             #endregion
 
@@ -690,6 +845,9 @@ namespace One
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+
+                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+
                 // Preenche registro I052
                 //01  REG
                 strTxt += stLimit;
@@ -697,7 +855,7 @@ namespace One
 
                 //02  COD_CCUS
                 strTxt += stLimit;
-                strTxt +=  item.codCentroCusto2.ToString().Trim();
+                strTxt += item.codCentroCusto2.ToString().Trim();
 
                 //03 COD_AGL
                 strTxt += stLimit;
@@ -1000,20 +1158,20 @@ namespace One
             OleDbDataAdapter adapter = new OleDbDataAdapter(command);
             adapter.Fill(dataTable);
 
-            var rows = (     from p in dataTable.AsEnumerable()
-                             where p[6].ToString() != "Centro de Custo"
-                           orderby p[0]
+            var rows = (from p in dataTable.AsEnumerable()
+                        where p[6].ToString() != "Centro de Custo"
+                        orderby p[0]
                         select new
-                       {
-                           dataLancamento = p[0],
-                           contaDebitoCredito = p[1],
-                           flgDebitoCredito = p[2],
-                           arquivamento = p[3],
-                           vlLancamento = p [4],
-                           centroCusto = p[6],
-                           historico = p[7],
-                           tipoLancamento = p[8]
-                       }).ToList();
+                        {
+                            dataLancamento = p[0],
+                            contaDebitoCredito = p[1],
+                            flgDebitoCredito = p[2],
+                            arquivamento = p[3],
+                            vlLancamento = p[4],
+                            centroCusto = p[6],
+                            historico = p[7],
+                            tipoLancamento = p[8]
+                        }).ToList();
 
             int i = 0;
             foreach (var item in rows)
@@ -1022,7 +1180,7 @@ namespace One
                 strRetorno += "|I200|" +
                     i.ToString() + "|" +
                     string.Format("{0:dd/MM/yyyy}", item.dataLancamento) + "|" + // Data Lcto
-                    string.Format("{0:N}", item.vlLancamento).Replace(".","") + "|" +  // Vl Lcto
+                    string.Format("{0:N}", item.vlLancamento).Replace(".", "") + "|" +  // Vl Lcto
                     "N" + "|" +  // Lancamento Normal
                     Environment.NewLine;
             }
@@ -1031,48 +1189,19 @@ namespace One
             return strRetorno;
         }
 
-        public string criaLinhaI050( object dtInclusao
-            , object indicadorNatureza
-            , object indicadorConta
-            , object nivel 
-            , object codConta
-            , object codNivelSup
-            , object descrConta)
+        #region I350
+        public string preencheRegistroI350()
         {
             string strTxt = "";
             string stLimit = "|";
 
-            //01  REG
+            //01    REG
             strTxt += stLimit;
-            strTxt += "I050";
+            strTxt += "I350";
 
-            //02  DT_ALT #########################
+            //02	DT_RES
             strTxt += stLimit;
-            strTxt += dtInclusao.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
-
-            //03  COD_NAT (Indicador de Natureza)
-            strTxt += stLimit;
-            strTxt += indicadorNatureza.ToString();
-
-            //04  IND_CTA (Analitico / Sintetico (A/S))
-            strTxt += stLimit;
-            strTxt += indicadorConta.ToString().Substring(0, 1);
-
-            //05  NIVEL
-            strTxt += stLimit;
-            strTxt += nivel.ToString();
-
-            //06  COD_CTA
-            strTxt += stLimit;
-            strTxt += codConta.ToString();
-
-            //07  COD_CTA_SUP (Codigo Nivel superior)
-            strTxt += stLimit;
-            strTxt += codNivelSup.ToString();
-
-            //08  CTA (Descricao da Conta)
-            strTxt += stLimit;
-            strTxt += descrConta.ToString().ToUpper().Trim();
+            strTxt += "01012018";
 
             strTxt += stLimit;
 
@@ -1080,67 +1209,154 @@ namespace One
 
             return strTxt;
         }
+        #endregion
 
-        public string criaLinhaI155(object codConta
-              , object codCentroCusto
-              , object saldoInicial
-              , object sitSaldo
-              , object totalDebito
-              , object totalCredito
-              , object saldoFinal
-              , object sitSaldoFinal
-            )
-
+        #region I355
+        public string preencheRegistroI355()
         {
             string strTxt = "";
             string stLimit = "|";
 
-            #region RegistroI155
-            //01  REG
+            //01	REG
             strTxt += stLimit;
-            strTxt += "I155";
+            strTxt += "I355";
 
-            //02  COD_CTA
+            //02	COD_CTA
+            //03	COD_CCUS
+            //04	VL_CTA
+            //05	IND_DC
             strTxt += stLimit;
-            strTxt += codConta;
 
-            //03  COD_CCUS
-            strTxt += stLimit;
-            strTxt += codCentroCusto;
-
-            //04  VL_SLD_INI
-            strTxt += stLimit;
-            strTxt += string.Format("{0:N}", saldoInicial).Replace(".", "").Replace("-","");
-
-            //05  IND_DC_INI
-            strTxt += stLimit;
-            strTxt += sitSaldo;
-
-            //06  VL_DEB
-            strTxt += stLimit;
-            strTxt += string.Format("{0:N}", totalDebito).Replace(".", "").Replace("-", "");
-
-            //07  VL_CRED
-            strTxt += stLimit;
-            strTxt += string.Format("{0:N}", totalCredito).Replace(".", "").Replace("-", "");
-
-            //08  VL_SLD_FIN
-            strTxt += stLimit;
-            strTxt += string.Format("{0:N}", saldoFinal).Replace(".", "").Replace("-", "");
-
-            //09  IND_DC_FIN
-            strTxt += stLimit;
-            strTxt += sitSaldoFinal;
-
-
-            strTxt += stLimit;
             strTxt += System.Environment.NewLine;
-            #endregion
 
             return strTxt;
         }
+        #endregion
+
+        #region I990
+        //01	REG
+        //02	QTD_LIN_I
+        #endregion
+
+        #region J001
+        //01	REG
+        //02	IND_DAD
+        #endregion
+
+        #region J005
+        //01	REG
+        //02	DT_INI
+        //03	DT_FIN
+        //04	ID_DEM
+        //05	CAB_DEM
+        #endregion
+
+        #region J100
+        //01	REG
+        //02	COD_AGL
+        //03	IND_COD_AGL
+        //04	NIVEL_AGL
+        //05	COD_AGL_SUP
+        //06	IND_GRP_BAL
+        //07	DESCR_COD_AGL
+        //08	VL_CTA_INI
+        //09	IND_DC_CTA_INI
+        //10	VL_CTA_FIN
+        //11	IND_DC_CTA_FIN
+        //12	NOTA_EXP_REF
+        #endregion
+
+        #region J150
+        //01	REG
+        //02	COD_AGL
+        //03	IND_COD_AGL
+        //04	NIVEL_AGL
+        //05	COD_AGL_SUP
+        //06	DESCR_COD_AGL
+        //07	VL_CTA
+        //08	IND_DC_CTA
+        //09	IND_GRP_DRE
+        //10	NOTA_EXP_REF
+        #endregion
+
+        #region J900
+        public string preencheRegistroJ900()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "J900";
+
+            //02	DNRC_ENCER
+            //03	NUM_ORD
+            //04	NAT_LIVRO
+            //05	NOME
+            //06	QTD_LIN
+            //07	DT_INI_ESCR
+            //08	DT_FIN_ESCR
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+
+        #endregion
+
+        #region J930
+        public string preencheRegistroI930()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "I930";
+
+            //02	IDENT_NOM
+            //03	IDENT_CPF_CNPJ
+            //04	IDENT_QUALIF
+            //05	COD_ASSIN
+            //06	IND_CRC
+            //07	EMAIL
+            //08	FONE
+            //09	UF_CRC
+            //10	NUM_SEQ_CRC
+            //11	DT_CRC
+            //12	IND_RESP_LEGAL
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+        #endregion
+
+        #region J990
+        public string preencheRegistroJ990()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "J990";
+
+            //02	QTD_LIN_J
+            strTxt += "0";
+
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+        #endregion
     }
-
 }
 
 
