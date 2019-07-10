@@ -1,0 +1,283 @@
+
+        #region J001
+        public string preencheRegistroJ001()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "J001";
+
+            //02	IND_DAD
+            strTxt += stLimit;
+            strTxt += "0";
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+        #endregion
+
+        #region J005
+        public string preencheRegistroJ005()
+        {
+            string strTxt = "";
+
+            string strPathFile = strDir + @"J005.xlsx";
+
+            using (FileStream stream = File.Open(strPathFile, FileMode.Open, FileAccess.Read))
+            {
+                var extension = Path.GetExtension(strPathFile).ToLower();
+
+                IExcelDataReader excelReader = null;
+
+                if (extension == ".xls")
+                {
+                    excelReader = ExcelReaderFactory.CreateBinaryReader(stream);
+                }
+                else if (extension == ".xlsx")
+                {
+                    excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                }
+                if (excelReader != null)
+                {
+                    // 1. Opção
+                    // Abre a tabela informando que a primeira linha possui o nome do campo
+                    DataTable dt = excelReader.AsDataSet(new ExcelDataSetConfiguration()
+                    {
+                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
+                    })
+                    .Tables[0];
+
+                    //  Exemplo rapido
+                    //  Referencia
+                    //  https://chrisbitting.com/2016/05/04/datatable-row-loop-csharp-performance-testing-linq-vs-select-vs-parallel-vs-for/
+
+                    string sval = "";
+                    StringBuilder sb = new StringBuilder();
+                    Parallel.For(0, dt.Rows.Count, rowi =>
+                    {
+                        sval = rowi.ToString() + "|" + dt.Rows[rowi][4];
+                        sb.Append(sval);
+                    });
+                    
+                    //fim exemplo rapido
+
+                    //2. Opção
+                    // DataTable dt = excelReader.AsDataSet().Tables[0];
+
+                    // Possui Dados no Excel
+                    bool fgPreencheuJ005 = false;
+                    foreach (DataRow r in dt.Rows)
+                    {
+
+                        if (r[0].ToString() != "Data Inicial")
+                        {
+                            if (!fgPreencheuJ005)
+                            {
+                                strTxt += criaLinhaIJ005(r[0].ToString(), r[1].ToString(), "1", r[3].ToString());
+                                fgPreencheuJ005 = true;
+                            }
+
+                            strTxt += criaLinhaIJ100(
+                                r[4].ToString()
+                                , "D"
+                                , r[6].ToString()
+                                , r[14].ToString()
+                                , r[7].ToString()
+                                , r[15].ToString()
+                                , r[9].ToString()
+                                , r[12].ToString()
+                                , r[11].ToString()
+                                , ""
+                                , "");
+
+                            strTxt += criaLinhaJ150(
+                                "codAgl", 
+                                "indCodAgl_TD", 
+                                "nivelAgl", 
+                                "codAglSup", 
+                                "descrCodAgl",
+                                "vlCta", 
+                                "indDCcta", 
+                                "indGrpDre", 
+                                "notaExpRef");
+                        }
+                    }
+                }
+                stream.Close();
+            }
+            return strTxt;
+        }
+
+        private string criaLinhaJ150(string codAgl, string indCodAgl_TD, string nivelAgl, string codAglSup, 
+            string descrCodAgl, string vlCta, string indDCcta, string indGrpDre, string notaExpRef)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01	REG
+            strTxt += stLimit;
+            strTxt += "J150";
+
+            //02	COD_AGL
+            strTxt += stLimit;
+            strTxt += codAgl;
+
+            //03	IND_COD_AGL
+            strTxt += stLimit;
+            strTxt += indCodAgl_TD;
+
+            //04	NIVEL_AGL
+            strTxt += stLimit;
+            strTxt += nivelAgl;
+
+            //05	COD_AGL_SUP
+            strTxt += stLimit;
+            strTxt += codAglSup;
+
+            //06	DESCR_COD_AGL
+            strTxt += stLimit;
+            strTxt += descrCodAgl;
+
+            //07	VL_CTA
+            strTxt += stLimit;
+            strTxt += vlCta;
+
+            //08	IND_DC_CTA
+            strTxt += stLimit;
+            strTxt += indDCcta;
+
+            //09	IND_GRP_DRE
+            strTxt += stLimit;
+            strTxt += indGrpDre;
+
+            //10	NOTA_EXP_REF
+            strTxt += stLimit;
+            strTxt += notaExpRef;
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+
+        private string criaLinhaIJ005(string dtIni, string dtFim, string idDem, string cabecDem)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01	REG
+            strTxt += stLimit;
+            strTxt += "J005";
+
+            //02	DT_INI
+            strTxt += stLimit;
+            strTxt += dtIni.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
+
+            //03	DT_FIN
+            strTxt += stLimit;
+            strTxt += dtFim.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
+
+            //04	ID_DEM
+            strTxt += stLimit;
+            strTxt += idDem;
+
+            //05	CAB_DEM
+            strTxt += stLimit;
+            strTxt += cabecDem;
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+        #endregion
+
+        #region J100
+        private string criaLinhaIJ100(string codAgl, string indCodAgl, string nivelAgl, string codAglSup, string indGrpBal, string descrCodAgl,
+            string vlCtaIni, string indDCctaIni, string vlCtaFin, string indDCctaFin, string notaExpRef)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01	REG
+            strTxt += stLimit;
+            strTxt += "J100";
+
+            //02	COD_AGL
+            strTxt += stLimit;
+            strTxt += codAgl;
+
+            //03	IND_COD_AGL ( T ou D )
+            strTxt += stLimit;
+            strTxt += indCodAgl;
+
+            //04	NIVEL_AGL
+            strTxt += stLimit;
+            strTxt += nivelAgl;
+
+            //05	COD_AGL_SUP
+            strTxt += stLimit;
+            strTxt += codAglSup;
+
+            //06	IND_GRP_BAL
+            strTxt += stLimit;
+            strTxt += indGrpBal;
+
+            //07	DESCR_COD_AGL
+            strTxt += stLimit;
+            strTxt += descrCodAgl;
+
+            //08	VL_CTA_INI
+            strTxt += stLimit;
+            double ConvVlCtaIni = 0.00;
+            double.TryParse(vlCtaIni, out ConvVlCtaIni);
+            strTxt += ConvVlCtaIni.ToString("F");
+            //strTxt += Convert.ToDouble(vlCtaIni).ToString("F");
+
+            //09	IND_DC_CTA_INI
+            strTxt += stLimit;
+            strTxt += indDCctaIni;
+
+            //10	VL_CTA_FIN
+            strTxt += stLimit;
+            double ConvVlCtaFim = 0.00;
+            double.TryParse(vlCtaFin, out ConvVlCtaFim);
+            strTxt += ConvVlCtaFim.ToString("F");
+            //strTxt += Convert.ToDouble(vlCtaFin).ToString("F");
+
+            //11	IND_DC_CTA_FIN
+            strTxt += stLimit;
+            strTxt += indDCctaFin;
+
+            //12	NOTA_EXP_REF
+            strTxt += stLimit;
+            strTxt += notaExpRef;
+
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+        #endregion
+
+        #region J150
+        //01	REG
+        //02	COD_AGL
+        //03	IND_COD_AGL
+        //04	NIVEL_AGL
+        //05	COD_AGL_SUP
+        //06	DESCR_COD_AGL
+        //07	VL_CTA
+        //08	IND_DC_CTA
+        //09	IND_GRP_DRE
+        //10	NOTA_EXP_REF
+        #endregion
