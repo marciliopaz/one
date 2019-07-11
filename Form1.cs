@@ -30,12 +30,12 @@ namespace OneSolution
         J900
         J990
         */
-        
+
         public Form1()
         {
             InitializeComponent();
-            //strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
-            strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
+            strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
+            //strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
 
         }
 
@@ -83,15 +83,15 @@ namespace OneSolution
 
             if (extension == ".xls")
             {
-                 excelReader = ExcelReaderFactory.CreateBinaryReader(stream);
+                excelReader = ExcelReaderFactory.CreateBinaryReader(stream);
             }
             else if (extension == ".xlsx")
             {
-                 excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
             }
             if (excelReader != null)
             {
-               // DataSet result = excelReader.AsDataSet();
+                // DataSet result = excelReader.AsDataSet();
                 DataTable dt = excelReader.AsDataSet().Tables[0];
 
 
@@ -596,7 +596,7 @@ namespace OneSolution
         private void button3_Click(object sender, EventArgs e)
         {
             string strDados = "";
-            
+
             //Nome do Arquivo
             //string strPathFile = @"C:\temp\DesenvTeste\One\One\teste.xlsx";
             //string strPathFile = @"C:\temp\DesenvTeste\One\One\Blocos.xlsx";
@@ -652,13 +652,16 @@ namespace OneSolution
                     progressBar1.Value += 10;
                     strDados += preencheRegistroI050();
                     progressBar1.Value += 10;
-                    strDados += preencheRegistroI100(); // Falta finalizar
+                    strDados += preencheRegistroI100();
                     strDados += preencheRegistroI155();
                     progressBar1.Value += 10;
-                    //strDados += preencheLancamentos();
+                    strDados += preencheLancamentos();
                     strDados += preencheRegistroI350eI355();
-                    strDados += preencheRegistroJ001();
-                    strDados += preencheRegistroJ005();
+                    strDados += preencheRegistroI990();
+                    //strDados += preencheRegistroJ001();
+                    //strDados += preencheRegistroJ005();
+                    //strDados += preencheRegistroJ900();//falta preencher pedir dados
+                    //strDados += preencheRegistroJ990();
 
 
                     //strDados += preencheRegistroI200(connection);
@@ -949,9 +952,10 @@ namespace OneSolution
             return strTxt;
         }
 
-        public string preencheRegistroI155()
+        public StringBuilder preencheRegistroI155()
         {
-            string strTxt = "";
+            //string strTxt = "";
+            StringBuilder stTxt = new StringBuilder();
             string strPathFile = strDir + @"BlocoI150.xls";
             string strCon =
               @"Provider=Microsoft.Jet.OLEDB.4.0;" +
@@ -989,40 +993,41 @@ namespace OneSolution
 
 
             string ctrlPeriodo = "";
-            int i = 0;
+            //int i = 0;
             foreach (var item in rowsI155)
             {
                 if (!string.IsNullOrEmpty(item.dtIniSaldo.ToString()))
                 {
-                    Console.WriteLine(
-                        item.dtIniSaldo + " " +
-                        item.dtFimSaldo + " " +
-                        item.codConta + " " +
-                        item.codCentroCusto + " " +
-                        item.saldoInicial + " " +
-                        item.saldoFinal + " "
-                        );
-                    i++;
+                    //Console.WriteLine(
+                    //    item.dtIniSaldo + " " +
+                    //    item.dtFimSaldo + " " +
+                    //    item.codConta + " " +
+                    //    item.codCentroCusto + " " +
+                    //    item.saldoInicial + " " +
+                    //    item.saldoFinal + " "
+                    //    );
+                    //i++;
 
                     if (item.dtIniSaldo.ToString() != ctrlPeriodo)
                     {
                         ctrlPeriodo = item.dtIniSaldo.ToString();
                         // cria a linha 150
-                        strTxt += preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString());
+                        //strTxt += preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString());
+                        stTxt.Append(preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString()));
                     }
                     else
                     {
                         ctrlPeriodo = item.dtIniSaldo.ToString();
                         // cria a linha 155
-                        strTxt +=
-                            criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
-                            item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal);
+                        //strTxt +=
+                        //    criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
+                        //    item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal);
+                        stTxt.Append(criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
+                            item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal));
                     }
                 }
             }
-
-
-            return strTxt;
+            return stTxt;
         }
 
         public string criaLinhaI155(object codConta
@@ -1134,20 +1139,21 @@ namespace OneSolution
                     // Abre a tabela informando que a primeira linha possui o nome do campo
                     DataTable dt = excelReader.AsDataSet(new ExcelDataSetConfiguration()
                     {
-                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration(){UseHeaderRow = true}
+                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
                     })
                     .Tables[0];
                     //2. Opção
                     // DataTable dt = excelReader.AsDataSet().Tables[0];
 
+                    stream.Close();
                     // Possui Dados no Excel
                     foreach (DataRow r in dt.Rows)
                     {
-                        if (r[0].ToString().Trim().Length>0)
+                        if (r[0].ToString().Trim().Length > 0)
                             strTxt += criaLinhaI100(r[0].ToString(), r[1].ToString(), r[2].ToString());
                     }
                 }
-                stream.Close(); 
+
             }
             return strTxt;
         }
@@ -1302,20 +1308,20 @@ namespace OneSolution
                             }
                             ).ToList();
 
-            int i = 0;
-            foreach (var item in rowsI050)
-            {
-                if (!string.IsNullOrEmpty(item.codConta.ToString()))
-                {
-                    Console.WriteLine(
-                        item.dtInclusao + " " +
-                        item.codConta + " " +
-                        item.descrConta + " " +
-                        item.indicadorConta + " "
-                        );
-                    i++;
-                }
-            }
+            //int i = 0;
+            //foreach (var item in rowsI050)
+            //{
+            //    if (!string.IsNullOrEmpty(item.codConta.ToString()))
+            //    {
+            //        Console.WriteLine(
+            //            item.dtInclusao + " " +
+            //            item.codConta + " " +
+            //            item.descrConta + " " +
+            //            item.indicadorConta + " "
+            //            );
+            //        i++;
+            //    }
+            //}
 
             #region Trazer NIVEL 1
             var rowNivel1 = (from n1 in rowsI050
@@ -1644,7 +1650,7 @@ namespace OneSolution
             //strTxt += "OCEAN NETWORK EXPRESS (LATIN AMERICA)";
             strTxt += "Ocean Network Express(Latin America) Agencia Maritima LTDA";
 
-           //06	CNPJ
+            //06	CNPJ
             strTxt += stLimit;
             strTxt += "28689596000106";
 
@@ -1654,6 +1660,7 @@ namespace OneSolution
 
             //08	IE
             strTxt += stLimit;
+            //strTxt += "112066369116";
             strTxt += "112066369116";
 
             //09	COD_MUN
@@ -1682,7 +1689,7 @@ namespace OneSolution
 
             //15	COD_HASH_SUB   
             strTxt += stLimit;
-            strTxt += "4A.19.5B.1A.92.CC.13.EC.46.C3.74.D9.3C.BE.C9.AC.2E.04.7D.64".Replace(".","");
+            strTxt += "4A.19.5B.1A.92.CC.13.EC.46.C3.74.D9.3C.BE.C9.AC.2E.04.7D.64".Replace(".", "");
 
             //16	IND_GRANDE_PORTE
             strTxt += stLimit;
@@ -1756,33 +1763,208 @@ namespace OneSolution
             return strRetorno;
         }
 
-        public string preencheLancamentos()
+        #region I200 e I250
+        public StringBuilder preencheLancamentos()
+        {
+            //string strTxt = "";
+            StringBuilder stTxt = new StringBuilder();
+
+            string strPathFile = strDir + @"Bloco I200 2250 novo.xlsx";
+
+            using (FileStream stream = File.Open(strPathFile, FileMode.Open, FileAccess.Read))
+            {
+                var extension = Path.GetExtension(strPathFile).ToLower();
+
+                IExcelDataReader excelReader = null;
+
+                if (extension == ".xls")
+                {
+                    excelReader = ExcelReaderFactory.CreateBinaryReader(stream);
+                }
+                else if (extension == ".xlsx")
+                {
+                    excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                }
+                if (excelReader != null)
+                {
+                    // 1. Opção
+                    // Abre a tabela informando que a primeira linha possui o nome do campo
+                    DataTable dt = excelReader.AsDataSet(new ExcelDataSetConfiguration()
+                    {
+                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
+                    })
+                    .Tables[0];
+                    //2. Opção
+                    // DataTable dt = excelReader.AsDataSet().Tables[0];
+
+                    stream.Close();
+
+                    //  Exemplo rapido
+                    //  Referencia
+                    //  https://chrisbitting.com/2016/05/04/datatable-row-loop-csharp-performance-testing-linq-vs-select-vs-parallel-vs-for/
+                    int i = 0;
+                    string i200 = "";
+
+                    var query = from DataRow row in dt.AsEnumerable()
+                                select row;
+                    //Parallel.For(0, dt.Rows.Count, r =>
+                    Parallel.ForEach(query, r =>
+                     {
+                        if (r[0].ToString().Trim() != "2")
+                        {
+                            // Cria Registro I200
+                            if (i200 != r[1].ToString() + r[2].ToString() || i == 2)
+                            {
+                                stTxt.Append(criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString()));
+                            }
+
+                            i200 = r[1].ToString() + r[2].ToString();
+
+                            // Cria Registro I250
+                            stTxt.Append(criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString()));
+                        }
+                    });
+
+                    //var query = from DataRow row in dt.AsEnumerable()
+                    //            select row;
+
+                    //Parallel.ForEach(query, row =>
+                    //{
+                    //    string sval = row["Field2"].ToString();
+                    //    stTxt.Append(sval);
+                    //});
+
+
+                    // Possui Dados no Excel
+                    //int i = 0;
+                    //string i200 = "";
+                    //foreach (DataRow r in dt.Rows)
+                    //{
+                    //    i++;
+                    //    textBox1.Text = i.ToString();
+                    //    if (r[0].ToString().Trim() != "2")
+                    //    {
+                    //        // Cria Registro I200
+                    //        if (i200 != r[1].ToString() + r[2].ToString() || i == 2)
+                    //        {
+                    //            stTxt.Append(criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString()));
+                    //            //strTxt += criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString());
+                    //        }
+                    //        i200 = r[1].ToString() + r[2].ToString();
+
+                    //        // Cria Registro I250
+                    //        stTxt.Append(criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString()));
+                    //        //strTxt += criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString());
+
+                    //    }
+                    //    if (i == 110)
+                    //    {
+                    //        break;
+                    //    }
+                    //}
+                }
+                
+            }
+            return stTxt;
+        }
+
+        private string criaLinhaI200(string dtLcto, string numLcto, string vlLcto, string tipoLcto)
         {
             string strTxt = "";
-            string strPathFile = strDir + @"BlocoI200I250.xls";
-            string strCon =
-              @"Provider=Microsoft.Jet.OLEDB.4.0;" +
-              @"Data Source=" + strPathFile + "; " +
-              @"Extended Properties='Excel 8.0;HDR=Yes;'";
+            string stLimit = "|";
 
-            DataTable dataTable = new DataTable();
-            using (OleDbConnection connI200file = new OleDbConnection(strCon))
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I200";
+
+            //02  NUM_LCTO
+            strTxt += stLimit;
+            strTxt += numLcto.Replace("'", "");
+
+            //03  DT_LCTO
+            strTxt += stLimit;
+            strTxt += dtLcto.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
+
+            //04  VL_LCTO
+            strTxt += stLimit;
+            double tmpVlLcto = 0.00;
+            double.TryParse(vlLcto, out tmpVlLcto);
+            strTxt += tmpVlLcto.ToString("F");
+
+            //05  IND_LCTO
+            strTxt += stLimit;
+            if (tipoLcto.Trim() =="Normal")
             {
-                connI200file.Open();
-
-                OleDbCommand command = new OleDbCommand("SELECT * FROM [Planilha1$] ", connI200file);
-                OleDbDataAdapter adapter = new OleDbDataAdapter(command);
-                adapter.Fill(dataTable);
-
-                connI200file.Close();
+                tipoLcto = "N";
+            }
+            else
+            {
+                tipoLcto = tipoLcto.Substring(0, 1);
             }
 
-            var rowsI200 = (from p in dataTable.AsEnumerable()
-                            select p).ToList();
-                            
+            //06  DT_LCTO_EXT
+            strTxt += stLimit;
+            strTxt += "";
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
 
             return strTxt;
         }
+
+        private string criaLinhaI250(string codCta, string centroCusto, string valorDc, string indDC, string hist)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01  REG
+            strTxt += stLimit;
+            strTxt += "I250";
+
+            //02  COD_CTA
+            strTxt += stLimit;
+            strTxt += codCta.Replace("'","");
+
+            //03  COD_CCUS
+            strTxt += stLimit;
+            strTxt += centroCusto;
+
+            //04  VL_DC
+            strTxt += stLimit;
+            //strTxt += string.Format("{0:N}", valorDc).Replace(".", "").Replace("-", "");
+            strTxt += Convert.ToDouble(valorDc).ToString("F").Replace("-", "");
+
+
+            //05  IND_DC
+            strTxt += stLimit;
+            strTxt += indDC;
+
+            //06  NUM_ARQ
+            strTxt += stLimit;
+            strTxt += "";
+
+            //07  COD_HIST_PAD
+            strTxt += stLimit;
+            strTxt += hist;
+
+            //08  HIST
+            strTxt += stLimit;
+            strTxt += "";
+
+            //09  COD_PART
+            strTxt += stLimit;
+            strTxt += "";
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+
+        }
+
+        #endregion
 
         #region I350 e I350
         public string preencheRegistroI350eI355()
@@ -1817,6 +1999,8 @@ namespace OneSolution
                     //2. Opção
                     // DataTable dt = excelReader.AsDataSet().Tables[0];
 
+                    stream.Close();
+
                     // Possui Dados no Excel
                     foreach (DataRow r in dt.Rows)
                     {
@@ -1827,7 +2011,7 @@ namespace OneSolution
                         }
                     }
                 }
-                stream.Close();
+
             }
             return strTxt;
         }
@@ -1899,8 +2083,8 @@ namespace OneSolution
             strTxt += "I990";
 
             //02	QTD_LIN_i
-            strTxt += "0";
-
+            strTxt += stLimit;
+            strTxt += "16978";
 
             strTxt += stLimit;
 
@@ -1962,14 +2146,37 @@ namespace OneSolution
                         ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
                     })
                     .Tables[0];
+
+                    //  Exemplo rapido
+                    //  Referencia
+                    //  https://chrisbitting.com/2016/05/04/datatable-row-loop-csharp-performance-testing-linq-vs-select-vs-parallel-vs-for/
+
+                    string sval = "";
+                    StringBuilder sb = new StringBuilder();
+                    Parallel.For(0, dt.Rows.Count, rowi =>
+                    {
+                        sval = rowi.ToString() + "|" + dt.Rows[rowi][4];
+                        sb.Append(sval);
+                    });
+
+                    //fim exemplo rapido
+
                     //2. Opção
                     // DataTable dt = excelReader.AsDataSet().Tables[0];
 
                     // Possui Dados no Excel
+                    bool fgPreencheuJ005 = false;
                     foreach (DataRow r in dt.Rows)
                     {
+
                         if (r[0].ToString() != "Data Inicial")
-                            strTxt += criaLinhaIJ005(r[0].ToString(), r[1].ToString(), "1", r[3].ToString());
+                        {
+                            if (!fgPreencheuJ005)
+                            {
+                                strTxt += criaLinhaIJ005(r[0].ToString(), r[1].ToString(), "1", r[3].ToString());
+                                fgPreencheuJ005 = true;
+                            }
+
                             strTxt += criaLinhaIJ100(
                                 r[4].ToString()
                                 , "D"
@@ -1982,11 +2189,75 @@ namespace OneSolution
                                 , r[11].ToString()
                                 , ""
                                 , "");
-                           
+
+                            //strTxt += criaLinhaJ150(
+                            //    "codAgl",
+                            //    "indCodAgl_TD",
+                            //    "nivelAgl",
+                            //    "codAglSup",
+                            //    "descrCodAgl",
+                            //    "vlCta",
+                            //    "indDCcta",
+                            //    "indGrpDre",
+                            //    "notaExpRef");
+                        }
                     }
                 }
                 stream.Close();
             }
+            return strTxt;
+        }
+
+        private string criaLinhaJ150(string codAgl, string indCodAgl_TD, string nivelAgl, string codAglSup,
+            string descrCodAgl, string vlCta, string indDCcta, string indGrpDre, string notaExpRef)
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01	REG
+            strTxt += stLimit;
+            strTxt += "J150";
+
+            //02	COD_AGL
+            strTxt += stLimit;
+            strTxt += codAgl;
+
+            //03	IND_COD_AGL
+            strTxt += stLimit;
+            strTxt += indCodAgl_TD;
+
+            //04	NIVEL_AGL
+            strTxt += stLimit;
+            strTxt += nivelAgl;
+
+            //05	COD_AGL_SUP
+            strTxt += stLimit;
+            strTxt += codAglSup;
+
+            //06	DESCR_COD_AGL
+            strTxt += stLimit;
+            strTxt += descrCodAgl;
+
+            //07	VL_CTA
+            strTxt += stLimit;
+            strTxt += vlCta;
+
+            //08	IND_DC_CTA
+            strTxt += stLimit;
+            strTxt += indDCcta;
+
+            //09	IND_GRP_DRE
+            strTxt += stLimit;
+            strTxt += indGrpDre;
+
+            //10	NOTA_EXP_REF
+            strTxt += stLimit;
+            strTxt += notaExpRef;
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
             return strTxt;
         }
 
@@ -2060,7 +2331,10 @@ namespace OneSolution
 
             //08	VL_CTA_INI
             strTxt += stLimit;
-            strTxt += vlCtaIni;
+            double ConvVlCtaIni = 0.00;
+            double.TryParse(vlCtaIni, out ConvVlCtaIni);
+            strTxt += ConvVlCtaIni.ToString("F");
+            //strTxt += Convert.ToDouble(vlCtaIni).ToString("F");
 
             //09	IND_DC_CTA_INI
             strTxt += stLimit;
@@ -2068,7 +2342,10 @@ namespace OneSolution
 
             //10	VL_CTA_FIN
             strTxt += stLimit;
-            strTxt += vlCtaFin;
+            double ConvVlCtaFim = 0.00;
+            double.TryParse(vlCtaFin, out ConvVlCtaFim);
+            strTxt += ConvVlCtaFim.ToString("F");
+            //strTxt += Convert.ToDouble(vlCtaFin).ToString("F");
 
             //11	IND_DC_CTA_FIN
             strTxt += stLimit;
@@ -2103,25 +2380,25 @@ namespace OneSolution
         #region J900
         public string preencheRegistroJ900()
         {
-        string strTxt = "";
-        string stLimit = "|";
+            string strTxt = "";
+            string stLimit = "|";
 
-        //01    REG
-        strTxt += stLimit;
-        strTxt += "J900";
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "J900";
 
-        //02	DNRC_ENCER
-        //03	NUM_ORD
-        //04	NAT_LIVRO
-        //05	NOME
-        //06	QTD_LIN
-        //07	DT_INI_ESCR
-        //08	DT_FIN_ESCR
-        strTxt += stLimit;
+            //02	DNRC_ENCER
+            //03	NUM_ORD
+            //04	NAT_LIVRO
+            //05	NOME
+            //06	QTD_LIN
+            //07	DT_INI_ESCR
+            //08	DT_FIN_ESCR
+            strTxt += stLimit;
 
-        strTxt += System.Environment.NewLine;
+            strTxt += System.Environment.NewLine;
 
-        return strTxt;
+            return strTxt;
         }
 
         #endregion
@@ -2270,5 +2547,3 @@ namespace OneSolution
     //    }
     // }
 }
-
-
