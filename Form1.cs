@@ -16,6 +16,34 @@ namespace OneSolution
     public partial class Form1 : Form
     {
         private string strDir;
+        private int cont0000 = 0;
+        private int cont0001 = 0;
+        private int cont0007 = 0;
+        private int cont0990 = 0;
+        private int contI001 = 0;
+        private int contI010 = 0;
+        private int contI030 = 0;
+        private int contI050 = 0;
+        private int contI051 = 0;
+        private int contI052 = 0;
+        private int contI100 = 0;
+        private int contI150 = 0;
+        private int contI155 = 0;
+        private int contI200 = 0;
+        private int contI250 = 0;
+        private int contI350 = 0;
+        private int contI355 = 0;
+        private int contI990 = 0;
+        private int contJ001 = 0;
+        private int contJ005 = 0;
+        private int contJ100 = 0;
+        private int contJ900 = 0;
+        private int contJ930 = 0;
+        private int contJ990 = 0;
+        private int cont9001 = 0;
+        private int cont9990 = 0;
+        private int cont9999 = 0;
+        private int cont9900 = 0;
 
 
         /*
@@ -1022,6 +1050,7 @@ namespace OneSolution
                         ctrlPeriodo = item.dtIniSaldo.ToString();
                         // cria a linha 150
                         stTxt.Append(preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString()));
+                        contI150++;
                     }
                     else
                     {
@@ -1029,6 +1058,7 @@ namespace OneSolution
                         // cria a linha 155
                         stTxt.Append(criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
                             item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal));
+                        contI155++;
                     }
                 }
             }
@@ -1060,31 +1090,39 @@ namespace OneSolution
             strTxt += stLimit;
             strTxt += codConta;
 
-            //03  COD_CCUS
+            //03  COD_CCUS (nao)
             strTxt += stLimit;
             strTxt += codCentroCusto;
 
             //04  VL_SLD_INI
             strTxt += stLimit;
-            strTxt += string.Format("{0:N}", saldoInicial).Replace(".", "").Replace("-", "");
+            double saldoIni = 0.00;
+            double.TryParse(saldoInicial.ToString().Replace("-", ""), out saldoIni);
+            strTxt += string.Format("{0:N}", saldoIni);
 
-            //05  IND_DC_INI
+            //05  IND_DC_INI (nao)
             strTxt += stLimit;
             strTxt += sitSaldo;
 
             //06  VL_DEB
             strTxt += stLimit;
-            strTxt += string.Format("{0:N}", totalDebito).Replace(".", "").Replace("-", "");
+            double vlDeb = 0.00;
+            double.TryParse(totalDebito.ToString().Replace("-", ""), out vlDeb);
+            strTxt += string.Format("{0:N}", vlDeb);
 
             //07  VL_CRED
             strTxt += stLimit;
-            strTxt += string.Format("{0:N}", totalCredito).Replace(".", "").Replace("-", "");
+            double vlCred = 0.00;
+            double.TryParse(totalCredito.ToString().Replace("-", ""), out vlCred);
+            strTxt += string.Format("{0:N}", vlCred);
 
             //08  VL_SLD_FIN
             strTxt += stLimit;
-            strTxt += string.Format("{0:N}", saldoFinal).Replace(".", "").Replace("-", "");
+            double vlSldFin = 0.00;
+            double.TryParse(saldoFinal.ToString().Replace("-", ""), out vlSldFin);
+            strTxt += string.Format("{0:N}", vlSldFin);
 
-            //09  IND_DC_FIN
+            //09  IND_DC_FIN (nao)
             strTxt += stLimit;
             strTxt += sitSaldoFinal;
 
@@ -1156,8 +1194,10 @@ namespace OneSolution
                     // Possui Dados no Excel
                     foreach (DataRow r in dt.Rows)
                     {
-                        if (r[0].ToString().Trim().Length > 0)
+                        if (r[0].ToString().Trim().Length > 0) { 
                             strTxt += criaLinhaI100(r[0].ToString(), r[1].ToString(), r[2].ToString());
+                            contI100++;
+                        }
                     }
                 }
 
@@ -1244,7 +1284,7 @@ namespace OneSolution
 
             //03  COD_NAT (Indicador de Natureza)
             strTxt += stLimit;
-            strTxt += indicadorNatureza.ToString();
+            strTxt += indicadorNatureza.ToString().PadLeft(2, '0');
 
             //04  IND_CTA (Analitico / Sintetico (A/S))
             strTxt += stLimit;
@@ -1330,7 +1370,10 @@ namespace OneSolution
                                 , ""
                                 , item.descrConta
                              );
+                contI050++;
+
                 strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                contI051++;
             }
 
             #endregion
@@ -1350,7 +1393,10 @@ namespace OneSolution
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+                contI050++;
+
                 strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                contI051++;
             }
             #endregion
 
@@ -1369,7 +1415,10 @@ namespace OneSolution
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+                contI050++;
+
                 strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                contI051++;
             }
             #endregion
 
@@ -1388,7 +1437,10 @@ namespace OneSolution
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+                contI050++;
+
                 strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                contI051++;
             }
             #endregion
 
@@ -1408,8 +1460,10 @@ namespace OneSolution
                                 , item.codNivelSup
                                 , item.descrConta
                              );
+                contI050++;
 
                 strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                contI051++;
 
                 // Preenche registro I052
                 //01  REG
@@ -1426,6 +1480,7 @@ namespace OneSolution
 
                 strTxt += stLimit;
                 strTxt += System.Environment.NewLine;
+                contI052++;
             }
 
             #endregion
@@ -1491,6 +1546,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            contI030++;
             #endregion
 
             return strTxt;
@@ -1518,6 +1574,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            contI010++;
             #endregion
 
             return strTxt;
@@ -1540,6 +1597,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            contI001++;
             #endregion
 
             return strTxt;
@@ -1562,6 +1620,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            cont0990++;
             #endregion
 
             return strTxt;
@@ -1589,6 +1648,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            cont0007++;
             #endregion
 
             return strTxt;
@@ -1611,6 +1671,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            cont0001++;
             #endregion
             return strTxt;
         }
@@ -1706,6 +1767,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            cont0000++;
             #endregion
 
             return strTxt;
@@ -1760,7 +1822,7 @@ namespace OneSolution
             //string strTxt = "";
             StringBuilder stTxtGeral = new StringBuilder();
 
-            string strPathFile = strDir + @"Bloco I200 2250 novo.xlsx";
+            string strPathFile = strDir + @"Bloco I200 2250 novom.xlsx";
 
             using (FileStream stream = File.Open(strPathFile, FileMode.Open, FileAccess.Read))
             {
@@ -1808,12 +1870,14 @@ namespace OneSolution
                             if (i200 != r[1].ToString() + r[2].ToString() || i == 2)
                             {
                                 stTxtGeral.Append(criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString()));
+                                contI200++;
                             }
 
                             i200 = r[1].ToString() + r[2].ToString();
 
                             // Cria Registro I250
                             stTxtGeral.Append(criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString()));
+                            contI250++;
                         }
                     }
                     //});
@@ -2001,6 +2065,8 @@ namespace OneSolution
                         {
                             strTxt += criaLinhaI350(r[0].ToString());
                             strTxt += criaLinhaI355(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString());
+                            contI350++;
+                            contI355++;
                         }
                     }
                 }
@@ -2071,13 +2137,23 @@ namespace OneSolution
             string strTxt = "";
             string stLimit = "|";
 
+            contI990++;
+
             //01    REG
             strTxt += stLimit;
             strTxt += "I990";
 
             //02	QTD_LIN_i
             strTxt += stLimit;
-            strTxt += "734160";
+            //strTxt += "734160";
+            strTxt += (contI001 
+                + contI010
+                + contI030 
+                + contI050
+                + contI051
+                + contI052
+                + contI100 
+                + contI150 + contI155 + contI200 + contI250 + contI350 + contI355 + contI990).ToString();
 
             strTxt += stLimit;
 
@@ -2444,7 +2520,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
-
+            contJ990++;
             return strTxt;
         }
         #endregion
@@ -2467,6 +2543,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            cont9001++;
 
             return strTxt;
         }
@@ -2489,23 +2566,26 @@ namespace OneSolution
 
             //strTxt += System.Environment.NewLine;
 
-            strTxt += "|9900|0000|1|" + System.Environment.NewLine;
-            strTxt += "|9900|0001|1|" + System.Environment.NewLine;
-            strTxt += "|9900|0007|1|" + System.Environment.NewLine;
-            strTxt += "|9900|0990|1|" + System.Environment.NewLine;
-            strTxt += "|9900|I001|1|" + System.Environment.NewLine;
-            strTxt += "|9900|I010|1|" + System.Environment.NewLine;
-            strTxt += "|9900|I030|1|" + System.Environment.NewLine;
-            strTxt += "|9900|I050|3657|" + System.Environment.NewLine;
-            strTxt += "|9900|I052|3551|" + System.Environment.NewLine;
-            strTxt += "|9900|I100|36|" + System.Environment.NewLine;
-            strTxt += "|9900|I150|12|" + System.Environment.NewLine;
-            strTxt += "|9900|I155|4861|" + System.Environment.NewLine;
-            strTxt += "|9900|I200|24127|" + System.Environment.NewLine;
-            strTxt += "|9900|I250|693203|" + System.Environment.NewLine;
-            strTxt += "|9900|I350|526|" + System.Environment.NewLine;
-            strTxt += "|9900|I355|526|" + System.Environment.NewLine;
-            strTxt += "|9900|I990|1|" + System.Environment.NewLine;
+            strTxt += "|9900|0000|" + cont0000.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|0001|" + cont0001.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|0007|" + cont0007.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|0990|" + cont0990.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I001|" + contI001.ToString() + "|"  + System.Environment.NewLine;
+            strTxt += "|9900|I010|" + contI010.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I030|" + contI030.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I050|" + contI050.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I051|" + contI051.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I052|" + contI052.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I100|" + contI100.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I150|" + contI150.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I155|" + contI155.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I200|" + contI200.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I250|" + contI250.ToString() + "|" + System.Environment.NewLine;
+            //strTxt += "|9900|I200|18|" + System.Environment.NewLine;
+            //strTxt += "|9900|I250|38|" + System.Environment.NewLine;
+            strTxt += "|9900|I350|" + contI350.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I355|" + contI355.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|I990|" + contI990.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|J001|0|" + System.Environment.NewLine;
             strTxt += "|9900|J005|0|" + System.Environment.NewLine;
             strTxt += "|9900|J100|0|" + System.Environment.NewLine;
@@ -2516,8 +2596,7 @@ namespace OneSolution
             strTxt += "|9900|9990|1|" + System.Environment.NewLine;
             strTxt += "|9900|9999|1|" + System.Environment.NewLine;
             strTxt += "|9900|9900|27|" + System.Environment.NewLine;
-            //strTxt += "|9990|30|" + System.Environment.NewLine;
-            //strTxt += "|9999|730538|" + System.Environment.NewLine;
+
 
             return strTxt;
         }
@@ -2541,6 +2620,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            cont9990++;
 
             return strTxt;
         }
@@ -2556,7 +2636,7 @@ namespace OneSolution
             strTxt += stLimit;
             strTxt += "9999";
 
-            //02	QTD_LIN
+            //02	QTD_LIN (total do arquivo)
             strTxt += stLimit;
             strTxt += "730538";
 
@@ -2564,6 +2644,7 @@ namespace OneSolution
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+            cont9999++;
 
             return strTxt;
         }
