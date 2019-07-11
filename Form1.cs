@@ -34,8 +34,8 @@ namespace OneSolution
         public Form1()
         {
             InitializeComponent();
-            strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
-            //strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
+            //strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
+            strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
 
         }
 
@@ -104,7 +104,7 @@ namespace OneSolution
         }
 
         // GERA TXT
-        public bool geraTxt(string texto, string caminhoTxt)
+        public bool geraTxt(StringBuilder texto, string caminhoTxt)
         {
             try
             {
@@ -114,12 +114,7 @@ namespace OneSolution
                     System.IO.File.Delete(caminhoTxt);
                 }
 
-                // REGISTRO 0
-                texto += "";
-
-                // REGISTRO 7
-
-                System.IO.File.WriteAllText(caminhoTxt, texto);
+                System.IO.File.WriteAllText(caminhoTxt, texto.ToString());
 
                 return true;
             }
@@ -596,6 +591,7 @@ namespace OneSolution
         private void button3_Click(object sender, EventArgs e)
         {
             string strDados = "";
+            StringBuilder stDados = new StringBuilder();
 
             //Nome do Arquivo
             //string strPathFile = @"C:\temp\DesenvTeste\One\One\teste.xlsx";
@@ -636,41 +632,65 @@ namespace OneSolution
 
                     connection.Open();
 
-                    strDados += preencheRegistro0000();
+                    //strDados += preencheRegistro0000();
+                    stDados.Append(preencheRegistro0000());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistro0001();
+                    //strDados += preencheRegistro0001();
+                    stDados.Append(preencheRegistro0001());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistro0007();
+                    //strDados += preencheRegistro0007();
+                    stDados.Append(preencheRegistro0007());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistro0990();
+                    //strDados += preencheRegistro0990();
+                    stDados.Append(preencheRegistro0990());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistroI001();
+                    //strDados += preencheRegistroI001();
+                    stDados.Append(preencheRegistroI001());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistroI010();
+                    //strDados += preencheRegistroI010();
+                    stDados.Append(preencheRegistroI010());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistroI030();
+                    //strDados += preencheRegistroI030();
+                    stDados.Append(preencheRegistroI030());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistroI050();
+                    //strDados += preencheRegistroI050();
+                    stDados.Append(preencheRegistroI050());
                     progressBar1.Value += 10;
-                    strDados += preencheRegistroI100();
-                    strDados += preencheRegistroI155();
+                    //strDados += preencheRegistroI100();
+                    //strDados += preencheRegistroI155();
+                    stDados.Append(preencheRegistroI100());
+                    stDados.Append(preencheRegistroI155());
+
                     progressBar1.Value += 10;
-                    strDados += preencheLancamentos();
-                    strDados += preencheRegistroI350eI355();
-                    strDados += preencheRegistroI990();
+                    //strDados += preencheLancamentos();
+                    //strDados += preencheRegistroI350eI355();
+                    //strDados += preencheRegistroI990();
+                    stDados.Append(preencheLancamentos());
+                    stDados.Append(preencheRegistroI350eI355());
+                    stDados.Append(preencheRegistroI990());
+
                     //strDados += preencheRegistroJ001();
                     //strDados += preencheRegistroJ005();
                     //strDados += preencheRegistroJ900();//falta preencher pedir dados
-                    //strDados += preencheRegistroJ990();
+                    stDados.Append(preencheRegistroJ990());
+
+                    // Contadores
+                    stDados.Append(preencheRegistro9001());
+                    stDados.Append(preencheRegistro9900());
+                    stDados.Append(preencheRegistro9990());
+                    stDados.Append(preencheRegistro9999());
+
+
 
 
                     //strDados += preencheRegistroI200(connection);
                     connection.Close();
                 }
 
-                if (!string.IsNullOrEmpty(strDados))
+                //if (!string.IsNullOrEmpty(strDados))
+                if (stDados.Length > 0)
                 {
-                    geraTxt(strDados, strPathTxt);
+                    geraTxt(stDados, strPathTxt);
                     MessageBox.Show("Arquivo Gerado");
                 }
             }
@@ -993,40 +1013,27 @@ namespace OneSolution
 
 
             string ctrlPeriodo = "";
-            //int i = 0;
             foreach (var item in rowsI155)
             {
                 if (!string.IsNullOrEmpty(item.dtIniSaldo.ToString()))
                 {
-                    //Console.WriteLine(
-                    //    item.dtIniSaldo + " " +
-                    //    item.dtFimSaldo + " " +
-                    //    item.codConta + " " +
-                    //    item.codCentroCusto + " " +
-                    //    item.saldoInicial + " " +
-                    //    item.saldoFinal + " "
-                    //    );
-                    //i++;
-
                     if (item.dtIniSaldo.ToString() != ctrlPeriodo)
                     {
                         ctrlPeriodo = item.dtIniSaldo.ToString();
                         // cria a linha 150
-                        //strTxt += preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString());
                         stTxt.Append(preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString()));
                     }
                     else
                     {
                         ctrlPeriodo = item.dtIniSaldo.ToString();
                         // cria a linha 155
-                        //strTxt +=
-                        //    criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
-                        //    item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal);
                         stTxt.Append(criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
                             item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal));
                     }
                 }
             }
+            rowsI155 = null;
+
             return stTxt;
         }
 
@@ -1307,21 +1314,6 @@ namespace OneSolution
                                 codAglut = p[11]
                             }
                             ).ToList();
-
-            //int i = 0;
-            //foreach (var item in rowsI050)
-            //{
-            //    if (!string.IsNullOrEmpty(item.codConta.ToString()))
-            //    {
-            //        Console.WriteLine(
-            //            item.dtInclusao + " " +
-            //            item.codConta + " " +
-            //            item.descrConta + " " +
-            //            item.indicadorConta + " "
-            //            );
-            //        i++;
-            //    }
-            //}
 
             #region Trazer NIVEL 1
             var rowNivel1 = (from n1 in rowsI050
@@ -1660,7 +1652,6 @@ namespace OneSolution
 
             //08	IE
             strTxt += stLimit;
-            //strTxt += "112066369116";
             strTxt += "112066369116";
 
             //09	COD_MUN
@@ -1767,7 +1758,7 @@ namespace OneSolution
         public StringBuilder preencheLancamentos()
         {
             //string strTxt = "";
-            StringBuilder stTxt = new StringBuilder();
+            StringBuilder stTxtGeral = new StringBuilder();
 
             string strPathFile = strDir + @"Bloco I200 2250 novo.xlsx";
 
@@ -1808,22 +1799,24 @@ namespace OneSolution
                     var query = from DataRow row in dt.AsEnumerable()
                                 select row;
                     //Parallel.For(0, dt.Rows.Count, r =>
-                    Parallel.ForEach(query, r =>
-                     {
+                    // Parallel.ForEach(query, r =>
+                    foreach (var r in query)
+                    {
                         if (r[0].ToString().Trim() != "2")
                         {
                             // Cria Registro I200
                             if (i200 != r[1].ToString() + r[2].ToString() || i == 2)
                             {
-                                stTxt.Append(criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString()));
+                                stTxtGeral.Append(criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString()));
                             }
 
                             i200 = r[1].ToString() + r[2].ToString();
 
                             // Cria Registro I250
-                            stTxt.Append(criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString()));
+                            stTxtGeral.Append(criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString()));
                         }
-                    });
+                    }
+                    //});
 
                     //var query = from DataRow row in dt.AsEnumerable()
                     //            select row;
@@ -1863,37 +1856,36 @@ namespace OneSolution
                     //    }
                     //}
                 }
-                
+
             }
-            return stTxt;
+            return stTxtGeral;
         }
 
-        private string criaLinhaI200(string dtLcto, string numLcto, string vlLcto, string tipoLcto)
+        private StringBuilder criaLinhaI200(string dtLcto, string numLcto, string vlLcto, string tipoLcto)
         {
-            string strTxt = "";
+            StringBuilder stTxt = new StringBuilder();
             string stLimit = "|";
 
             //01  REG
-            strTxt += stLimit;
-            strTxt += "I200";
+            stTxt.Append(stLimit);
+            stTxt.Append("I200");
 
             //02  NUM_LCTO
-            strTxt += stLimit;
-            strTxt += numLcto.Replace("'", "");
+            stTxt.Append(stLimit);
+            stTxt.Append(numLcto.Replace("'", ""));
 
             //03  DT_LCTO
-            strTxt += stLimit;
-            strTxt += dtLcto.ToString().Replace("/", "").Replace("00:00:00", "").Trim();
+            stTxt.Append(stLimit);
+            stTxt.Append(dtLcto.ToString().Replace("/", "").Replace("00:00:00", "").Trim());
 
             //04  VL_LCTO
-            strTxt += stLimit;
             double tmpVlLcto = 0.00;
             double.TryParse(vlLcto, out tmpVlLcto);
-            strTxt += tmpVlLcto.ToString("F");
+            stTxt.Append(stLimit);
+            stTxt.Append(tmpVlLcto.ToString("F"));
 
             //05  IND_LCTO
-            strTxt += stLimit;
-            if (tipoLcto.Trim() =="Normal")
+            if (tipoLcto.Trim() == "Normal")
             {
                 tipoLcto = "N";
             }
@@ -1901,66 +1893,67 @@ namespace OneSolution
             {
                 tipoLcto = tipoLcto.Substring(0, 1);
             }
+            stTxt.Append(stLimit);
+            stTxt.Append(tipoLcto);
 
             //06  DT_LCTO_EXT
-            strTxt += stLimit;
-            strTxt += "";
+            stTxt.Append(stLimit);
+            stTxt.Append("");
 
-            strTxt += stLimit;
+            stTxt.Append(stLimit);
 
-            strTxt += System.Environment.NewLine;
+            stTxt.Append(System.Environment.NewLine);
 
-            return strTxt;
+            return stTxt;
         }
 
-        private string criaLinhaI250(string codCta, string centroCusto, string valorDc, string indDC, string hist)
+        private StringBuilder criaLinhaI250(string codCta, string centroCusto, string valorDc, string indDC, string hist)
         {
-            string strTxt = "";
+            //string strTxt = "";
+            StringBuilder stTxt = new StringBuilder();
             string stLimit = "|";
 
             //01  REG
-            strTxt += stLimit;
-            strTxt += "I250";
+            stTxt.Append(stLimit);
+            stTxt.Append("I250");
 
             //02  COD_CTA
-            strTxt += stLimit;
-            strTxt += codCta.Replace("'","");
+            stTxt.Append(stLimit);
+            stTxt.Append(codCta.Replace("'", ""));
 
             //03  COD_CCUS
-            strTxt += stLimit;
-            strTxt += centroCusto;
+            stTxt.Append(stLimit);
+            stTxt.Append(centroCusto);
 
             //04  VL_DC
-            strTxt += stLimit;
-            //strTxt += string.Format("{0:N}", valorDc).Replace(".", "").Replace("-", "");
-            strTxt += Convert.ToDouble(valorDc).ToString("F").Replace("-", "");
-
+            stTxt.Append(stLimit);
+            stTxt.Append(Convert.ToDouble(valorDc).ToString("F").Replace("-", ""));
 
             //05  IND_DC
-            strTxt += stLimit;
-            strTxt += indDC;
+            stTxt.Append(stLimit);
+            stTxt.Append(indDC);
 
             //06  NUM_ARQ
-            strTxt += stLimit;
-            strTxt += "";
+            stTxt.Append(stLimit);
+            stTxt.Append("");
 
             //07  COD_HIST_PAD
-            strTxt += stLimit;
-            strTxt += hist;
+            stTxt.Append(stLimit);
+            stTxt.Append(centroCusto);
 
             //08  HIST
-            strTxt += stLimit;
-            strTxt += "";
+            stTxt.Append(stLimit);
+            stTxt.Append(hist.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(Environment.NewLine, "").Replace("|",""));
 
             //09  COD_PART
-            strTxt += stLimit;
-            strTxt += "";
+            stTxt.Append(stLimit);
+            stTxt.Append("");
 
-            strTxt += stLimit;
+            stTxt.Append(stLimit);
 
-            strTxt += System.Environment.NewLine;
+            stTxt.Append(System.Environment.NewLine);
 
-            return strTxt;
+            return stTxt;
 
         }
 
@@ -2084,7 +2077,7 @@ namespace OneSolution
 
             //02	QTD_LIN_i
             strTxt += stLimit;
-            strTxt += "16978";
+            strTxt += "734160";
 
             strTxt += stLimit;
 
@@ -2444,7 +2437,8 @@ namespace OneSolution
             strTxt += "J990";
 
             //02	QTD_LIN_J
-            strTxt += "0";
+            strTxt += stLimit;
+            strTxt += "1";
 
 
             strTxt += stLimit;
@@ -2466,12 +2460,64 @@ namespace OneSolution
             strTxt += "9001";
 
             //02	IND_MOV
-            strTxt += "1";
+            strTxt += stLimit;
+            strTxt += "0";
 
 
             strTxt += stLimit;
 
             strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+        #endregion
+
+        #region 9900 (IMPORTANTE)
+        public string preencheRegistro9900()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            ////01    REG
+            //strTxt += stLimit;
+            //strTxt += "9900";
+
+            ////02	IND_MOV
+            //strTxt += "0";
+
+            //strTxt += stLimit;
+
+            //strTxt += System.Environment.NewLine;
+
+            strTxt += "|9900|0000|1|" + System.Environment.NewLine;
+            strTxt += "|9900|0001|1|" + System.Environment.NewLine;
+            strTxt += "|9900|0007|1|" + System.Environment.NewLine;
+            strTxt += "|9900|0990|1|" + System.Environment.NewLine;
+            strTxt += "|9900|I001|1|" + System.Environment.NewLine;
+            strTxt += "|9900|I010|1|" + System.Environment.NewLine;
+            strTxt += "|9900|I030|1|" + System.Environment.NewLine;
+            strTxt += "|9900|I050|3657|" + System.Environment.NewLine;
+            strTxt += "|9900|I052|3551|" + System.Environment.NewLine;
+            strTxt += "|9900|I100|36|" + System.Environment.NewLine;
+            strTxt += "|9900|I150|12|" + System.Environment.NewLine;
+            strTxt += "|9900|I155|4861|" + System.Environment.NewLine;
+            strTxt += "|9900|I200|24127|" + System.Environment.NewLine;
+            strTxt += "|9900|I250|693203|" + System.Environment.NewLine;
+            strTxt += "|9900|I350|526|" + System.Environment.NewLine;
+            strTxt += "|9900|I355|526|" + System.Environment.NewLine;
+            strTxt += "|9900|I990|1|" + System.Environment.NewLine;
+            strTxt += "|9900|J001|0|" + System.Environment.NewLine;
+            strTxt += "|9900|J005|0|" + System.Environment.NewLine;
+            strTxt += "|9900|J100|0|" + System.Environment.NewLine;
+            strTxt += "|9900|J900|0|" + System.Environment.NewLine;
+            strTxt += "|9900|J930|0|" + System.Environment.NewLine;
+            strTxt += "|9900|J990|1|" + System.Environment.NewLine;
+            strTxt += "|9900|9001|1|" + System.Environment.NewLine;
+            strTxt += "|9900|9990|1|" + System.Environment.NewLine;
+            strTxt += "|9900|9999|1|" + System.Environment.NewLine;
+            strTxt += "|9900|9900|27|" + System.Environment.NewLine;
+            //strTxt += "|9990|30|" + System.Environment.NewLine;
+            //strTxt += "|9999|730538|" + System.Environment.NewLine;
 
             return strTxt;
         }
@@ -2488,7 +2534,31 @@ namespace OneSolution
             strTxt += "9990";
 
             //02	QTD_LIN_9
-            strTxt += "0";
+            strTxt += stLimit;
+            strTxt += "30";
+
+
+            strTxt += stLimit;
+
+            strTxt += System.Environment.NewLine;
+
+            return strTxt;
+        }
+        #endregion
+
+        #region 9999 (IMPORTANTE)
+        public string preencheRegistro9999()
+        {
+            string strTxt = "";
+            string stLimit = "|";
+
+            //01    REG
+            strTxt += stLimit;
+            strTxt += "9999";
+
+            //02	QTD_LIN
+            strTxt += stLimit;
+            strTxt += "730538";
 
 
             strTxt += stLimit;
