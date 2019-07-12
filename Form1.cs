@@ -16,6 +16,7 @@ namespace OneSolution
     public partial class Form1 : Form
     {
         private string strDir;
+        #region declaracao dos contadores
         private int cont0000 = 0;
         private int cont0001 = 0;
         private int cont0007 = 0;
@@ -44,7 +45,7 @@ namespace OneSolution
         private int cont9990 = 0;
         private int cont9999 = 0;
         private int cont9900 = 0;
-
+        #endregion
 
         /*
         - Pedir o arquivo do ano anterior ECD 2018
@@ -62,8 +63,8 @@ namespace OneSolution
         public Form1()
         {
             InitializeComponent();
-            //strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
-            strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
+            strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
+           // strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
 
         }
 
@@ -1098,7 +1099,7 @@ namespace OneSolution
             strTxt += stLimit;
             double saldoIni = 0.00;
             double.TryParse(saldoInicial.ToString().Replace("-", ""), out saldoIni);
-            strTxt += string.Format("{0:N}", saldoIni);
+            strTxt += string.Format("{0:N}", saldoIni).Replace(".", "");
 
             //05  IND_DC_INI (nao)
             strTxt += stLimit;
@@ -1108,19 +1109,19 @@ namespace OneSolution
             strTxt += stLimit;
             double vlDeb = 0.00;
             double.TryParse(totalDebito.ToString().Replace("-", ""), out vlDeb);
-            strTxt += string.Format("{0:N}", vlDeb);
+            strTxt += string.Format("{0:N}", vlDeb).Replace(".", "");
 
             //07  VL_CRED
             strTxt += stLimit;
             double vlCred = 0.00;
             double.TryParse(totalCredito.ToString().Replace("-", ""), out vlCred);
-            strTxt += string.Format("{0:N}", vlCred);
+            strTxt += string.Format("{0:N}", vlCred).Replace(".","");
 
             //08  VL_SLD_FIN
             strTxt += stLimit;
             double vlSldFin = 0.00;
             double.TryParse(saldoFinal.ToString().Replace("-", ""), out vlSldFin);
-            strTxt += string.Format("{0:N}", vlSldFin);
+            strTxt += string.Format("{0:N}", vlSldFin).Replace(".", "");
 
             //09  IND_DC_FIN (nao)
             strTxt += stLimit;
@@ -1194,7 +1195,8 @@ namespace OneSolution
                     // Possui Dados no Excel
                     foreach (DataRow r in dt.Rows)
                     {
-                        if (r[0].ToString().Trim().Length > 0) { 
+                        if (r[0].ToString().Trim().Length > 0)
+                        {
                             strTxt += criaLinhaI100(r[0].ToString(), r[1].ToString(), r[2].ToString());
                             contI100++;
                         }
@@ -1822,7 +1824,7 @@ namespace OneSolution
             //string strTxt = "";
             StringBuilder stTxtGeral = new StringBuilder();
 
-            string strPathFile = strDir + @"Bloco I200 2250 novom.xlsx";
+            string strPathFile = strDir + @"Bloco I200 2250 novo.xlsx";
 
             using (FileStream stream = File.Open(strPathFile, FileMode.Open, FileAccess.Read))
             {
@@ -2007,7 +2009,7 @@ namespace OneSolution
 
             //08  HIST
             stTxt.Append(stLimit);
-            stTxt.Append(hist.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(Environment.NewLine, "").Replace("|",""));
+            stTxt.Append(hist.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(Environment.NewLine, "").Replace("|", ""));
 
             //09  COD_PART
             stTxt.Append(stLimit);
@@ -2146,13 +2148,13 @@ namespace OneSolution
             //02	QTD_LIN_i
             strTxt += stLimit;
             //strTxt += "734160";
-            strTxt += (contI001 
+            strTxt += (contI001
                 + contI010
-                + contI030 
+                + contI030
                 + contI050
                 + contI051
                 + contI052
-                + contI100 
+                + contI100
                 + contI150 + contI155 + contI200 + contI250 + contI350 + contI355 + contI990).ToString();
 
             strTxt += stLimit;
@@ -2570,7 +2572,7 @@ namespace OneSolution
             strTxt += "|9900|0001|" + cont0001.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|0007|" + cont0007.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|0990|" + cont0990.ToString() + "|" + System.Environment.NewLine;
-            strTxt += "|9900|I001|" + contI001.ToString() + "|"  + System.Environment.NewLine;
+            strTxt += "|9900|I001|" + contI001.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I010|" + contI010.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I030|" + contI030.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I050|" + contI050.ToString() + "|" + System.Environment.NewLine;
@@ -2595,7 +2597,7 @@ namespace OneSolution
             strTxt += "|9900|9001|1|" + System.Environment.NewLine;
             strTxt += "|9900|9990|1|" + System.Environment.NewLine;
             strTxt += "|9900|9999|1|" + System.Environment.NewLine;
-            strTxt += "|9900|9900|27|" + System.Environment.NewLine;
+            strTxt += "|9900|9900|28|" + System.Environment.NewLine;
 
 
             return strTxt;
@@ -2614,7 +2616,7 @@ namespace OneSolution
 
             //02	QTD_LIN_9
             strTxt += stLimit;
-            strTxt += "30";
+            strTxt += "31";
 
 
             strTxt += stLimit;
@@ -2638,7 +2640,7 @@ namespace OneSolution
 
             //02	QTD_LIN (total do arquivo)
             strTxt += stLimit;
-            strTxt += "730538";
+            strTxt += "734196";
 
 
             strTxt += stLimit;
