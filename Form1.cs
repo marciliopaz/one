@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -63,8 +64,8 @@ namespace OneSolution
         public Form1()
         {
             InitializeComponent();
-            strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
-           // strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
+            //strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
+            strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
 
         }
 
@@ -1048,19 +1049,17 @@ namespace OneSolution
                 {
                     if (item.dtIniSaldo.ToString() != ctrlPeriodo)
                     {
-                        ctrlPeriodo = item.dtIniSaldo.ToString();
+                        //ctrlPeriodo = item.dtIniSaldo.ToString();
                         // cria a linha 150
                         stTxt.Append(preencheRegistroI150(item.dtIniSaldo.ToString(), item.dtFimSaldo.ToString()));
                         contI150++;
                     }
-                    else
-                    {
-                        ctrlPeriodo = item.dtIniSaldo.ToString();
-                        // cria a linha 155
-                        stTxt.Append(criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
-                            item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal));
-                        contI155++;
-                    }
+                    ctrlPeriodo = item.dtIniSaldo.ToString();
+                    // cria a linha 155
+                    stTxt.Append(criaLinhaI155(item.codConta, item.codCentroCusto, item.saldoInicial, item.sitSaldo,
+                        item.totalDebito, item.totalCredito, item.saldoFinal, item.sitSaldoFinal));
+                    contI155++;
+
                 }
             }
             rowsI155 = null;
@@ -1115,7 +1114,7 @@ namespace OneSolution
             strTxt += stLimit;
             double vlCred = 0.00;
             double.TryParse(totalCredito.ToString().Replace("-", ""), out vlCred);
-            strTxt += string.Format("{0:N}", vlCred).Replace(".","");
+            strTxt += string.Format("{0:N}", vlCred).Replace(".", "");
 
             //08  VL_SLD_FIN
             strTxt += stLimit;
@@ -1192,8 +1191,12 @@ namespace OneSolution
                     // DataTable dt = excelReader.AsDataSet().Tables[0];
 
                     stream.Close();
+
+                    var result = (from DataRow row in dt.AsEnumerable() select row).ToList();
+                    dt = null;
+
                     // Possui Dados no Excel
-                    foreach (DataRow r in dt.Rows)
+                    foreach (var r in result)
                     {
                         if (r[0].ToString().Trim().Length > 0)
                         {
@@ -1344,7 +1347,8 @@ namespace OneSolution
                             {
                                 dtInclusao = p[0],
                                 codConta = p[1],
-                                descrConta = p[2],
+                                // descrConta = ObterStringSemAcentosECaracteresEspeciais(p[2].ToString()),
+                                descrConta = p[2].ToString(),
                                 indicadorConta = p[3],
                                 indicadorNatureza = p[4],
                                 nivel = p[5],
@@ -1460,99 +1464,44 @@ namespace OneSolution
 
             #region Trazer NIVEL 5
             //grupos i050
-            var groupedN5 = (rowsI050.GroupBy(x => new
-            {
-                cConta = x.codConta.ToString(),
-                dConta = x.descrConta.ToString(),
-                dtInclu = x.dtInclusao.ToString(),
-                indDC = x.indicadorConta.ToString(),
-                indNat = x.indicadorNatureza.ToString(),
-                nivelSup = x.codNivelSup.ToString(),
-                nivel = x.nivel.ToString()
-            })).ToList();
+            var i050Group = (from b in rowsI050
+                             where (!string.IsNullOrEmpty(b.codConta.ToString())) && (b.nivel.ToString() == "5")
+                             group b by b.codConta.ToString() into g
+                             select new
+                             {
+                                 CodConta = g.Key,
+                             }
+                               ).ToList();
 
-            //loop em i050
-            foreach (var item in groupedN5)
+            foreach (var item in i050Group)
             {
+                // buscar dados da linhaI050
+                var i050 = (from r in rowsI050.Where(x => x.nivel.ToString() == "5")
+                            where r.codConta.ToString() == item.CodConta.ToString()
+                            select r
+                            ).ToList();
+
                 // preenche as criaLinhaI050 
-                strTxt += criaLinhaI050(item.
-                    , item.indicadorNatureza
-                    , item.indicadorConta
-                    , item.nivel
-                    , item.codConta
-                    , item.codNivelSup
-                    , item.descrConta
-                 );
+                strTxt += criaLinhaI050(i050[0].dtInclusao
+                                , i050[0].indicadorNatureza
+                                , i050[0].indicadorConta
+                                , i050[0].nivel
+                                , i050[0].codConta
+                                , i050[0].codNivelSup
+                                , i050[0].descrConta
+                             );
                 contI050++;
-                // buscar todos i051
 
-                // buscar todos i052
-
-            }
-
-
-            
-            //var rowNivel5 = (from n5 in rowsI050
-            //                 where n5.nivel.ToString() == "5"
-            //                 select n5).ToList();
-
-        //string itemAnterior = "";
-        //foreach (var item in rowNivel5)
-        //{
-        //    // Preenche registro I050 nivel 5
-
-        //    if (itemAnterior != (item.codConta.ToString() + item.descrConta.ToString()))
-        //    {
-        //        strTxt += criaLinhaI050(item.dtInclusao
-        //                        , item.indicadorNatureza
-        //                        , item.indicadorConta
-        //                        , item.nivel
-        //                        , item.codConta
-        //                        , item.codNivelSup
-        //                        , item.descrConta
-        //                     );
-        //        contI050++;
-
-        //        itemAnterior = item.codConta.ToString() + item.descrConta.ToString();
-        //    }
-        //}
-
-
-
-
-
-
-        var rowNivel5 = (from n5 in rowsI050
-                             where n5.nivel.ToString() == "5"
-                                //&& n5.indicadorConta.ToString().Substring(0, 1) == "A"
-                             select n5).ToList();
-
-            string itemAnterior = "";
-            foreach (var item in rowNivel5)
-            {
-                // Preenche registro I050 nivel 5
-
-                if (itemAnterior != (item.codConta.ToString() + item.descrConta.ToString()))
+                //preenche todas as linha I051
+                foreach (var itemI051 in i050)
                 {
-                    strTxt += criaLinhaI050(item.dtInclusao
-                                    , item.indicadorNatureza
-                                    , item.indicadorConta
-                                    , item.nivel
-                                    , item.codConta
-                                    , item.codNivelSup
-                                    , item.descrConta
-                                 );
-                    contI050++;
-
-                    itemAnterior = item.codConta.ToString() + item.descrConta.ToString();
+                    strTxt += criaLinhaI051(itemI051.codPlanoRef, itemI051.codCentroCusto, itemI051.codConta2);
+                    contI051++;
                 }
 
-
-                if (item.indicadorConta.ToString().Substring(0, 1) == "A")
+                //preenche todas as linha I052
+                foreach (var itemI052 in i050)
                 {
-                    strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
-                    contI051++;
-
                     // Preenche registro I052
                     //01  REG
                     strTxt += stLimit;
@@ -1560,18 +1509,68 @@ namespace OneSolution
 
                     //02  COD_CCUS
                     strTxt += stLimit;
-                    strTxt += item.codCentroCusto2.ToString().Trim();
+                    strTxt += itemI052.codCentroCusto2.ToString().Trim();
 
                     //03 COD_AGL
                     strTxt += stLimit;
-                    strTxt += item.codAglut.ToString().ToUpper().Trim();
+                    strTxt += itemI052.codAglut.ToString().ToUpper().Trim();
 
                     strTxt += stLimit;
                     strTxt += System.Environment.NewLine;
                     contI052++;
                 }
-
             }
+            #region nivel5 comentado
+            //var rowNivel5 = (from n5 in rowsI050
+            //                 where n5.nivel.ToString() == "5"
+            //                 //&& n5.indicadorConta.ToString().Substring(0, 1) == "A"
+            //                 select n5).ToList();
+
+            //string itemAnterior = "";
+            //foreach (var item in rowNivel5)
+            //{
+            //    // Preenche registro I050 nivel 5
+
+            //    if (itemAnterior != (item.codConta.ToString() + item.descrConta.ToString()))
+            //    {
+            //        strTxt += criaLinhaI050(item.dtInclusao
+            //                        , item.indicadorNatureza
+            //                        , item.indicadorConta
+            //                        , item.nivel
+            //                        , item.codConta
+            //                        , item.codNivelSup
+            //                        , item.descrConta
+            //                     );
+            //        contI050++;
+
+            //        itemAnterior = item.codConta.ToString() + item.descrConta.ToString();
+            //    }
+
+
+            //    if (item.indicadorConta.ToString().Substring(0, 1) == "A")
+            //    {
+            //        strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+            //        contI051++;
+
+            //        // Preenche registro I052
+            //        //01  REG
+            //        strTxt += stLimit;
+            //        strTxt += "I052";
+
+            //        //02  COD_CCUS
+            //        strTxt += stLimit;
+            //        strTxt += item.codCentroCusto2.ToString().Trim();
+
+            //        //03 COD_AGL
+            //        strTxt += stLimit;
+            //        strTxt += item.codAglut.ToString().ToUpper().Trim();
+
+            //        strTxt += stLimit;
+            //        strTxt += System.Environment.NewLine;
+            //        contI052++;
+            //    }
+            //}
+            #endregion
 
             #endregion
 
@@ -1950,6 +1949,8 @@ namespace OneSolution
 
                     var query = from DataRow row in dt.AsEnumerable()
                                 select row;
+
+                    dt = null;
                     //Parallel.For(0, dt.Rows.Count, r =>
                     // Parallel.ForEach(query, r =>
                     foreach (var r in query)
@@ -2354,8 +2355,6 @@ namespace OneSolution
                               Valor Final 
                               situação do Saldo
                               Notas Explicativas
-
-
                             */
                             strTxt += criaLinhaIJ100(
                                 r[4].ToString() // cod Agluti
@@ -2698,8 +2697,6 @@ namespace OneSolution
             strTxt += "|9900|I155|" + contI155.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I200|" + contI200.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I250|" + contI250.ToString() + "|" + System.Environment.NewLine;
-            //strTxt += "|9900|I200|18|" + System.Environment.NewLine;
-            //strTxt += "|9900|I250|38|" + System.Environment.NewLine;
             strTxt += "|9900|I350|" + contI350.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I355|" + contI355.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I990|" + contI990.ToString() + "|" + System.Environment.NewLine;
@@ -2749,13 +2746,43 @@ namespace OneSolution
             string strTxt = "";
             string stLimit = "|";
 
+            int totalLinhasDoc =
+            cont0000 +
+            cont0001 +
+            cont0007 +
+            cont0990 +
+            contI001 +
+            contI010 +
+            contI030 +
+            contI050 +
+            contI051 +
+            contI052 +
+            contI100 +
+            contI150 +
+            contI155 +
+            contI200 +
+            contI250 +
+            contI350 +
+            contI355 +
+            contI990 +
+            0 +
+            0 +
+            0 +
+            0 +
+            0 +
+            1 +
+            1 +
+            1 +
+            1 +
+            28;
+
             //01    REG
             strTxt += stLimit;
             strTxt += "9999";
 
             //02	QTD_LIN (total do arquivo)
             strTxt += stLimit;
-            strTxt += "733373";
+            strTxt += totalLinhasDoc.ToString();
 
 
             strTxt += stLimit;
@@ -2775,43 +2802,44 @@ namespace OneSolution
                 textBox1.Text = openFileDialog1.FileName;
             }
         }
+
+        public static string RemoveSpecialCharacters(string text, bool allowSpace = false)
+        {
+            string ret;
+
+            if (allowSpace)
+                ret = System.Text.RegularExpressions.Regex.Replace(text, @"[^0-9a-zA-ZéúíóáÉÚÍÓÁèùìòàÈÙÌÒÀõãñÕÃÑêûîôâÊÛÎÔÂëÿüïöäËYÜÏÖÄçÇ\s]+?-", string.Empty);
+            else
+                ret = System.Text.RegularExpressions.Regex.Replace(text, @"[^0-9a-zA-ZéúíóáÉÚÍÓÁèùìòàÈÙÌÒÀõãñÕÃÑêûîôâÊÛÎÔÂëÿüïöäËYÜÏÖÄçÇ]+?-", string.Empty);
+
+            return ret;
+        }
+
+        public string ObterStringSemAcentosECaracteresEspeciais(string str)
+        {
+            /** Troca os caracteres acentuados por não acentuados **/
+            string[] acentos = new string[] { "ç", "Ç", "á", "é", "í", "ó", "ú", "ý", "Á", "É", "Í", "Ó", "Ú", "Ý", "à", "è", "ì", "ò", "ù", "À", "È", "Ì", "Ò", "Ù", "ã", "õ", "ñ", "ä", "ë", "ï", "ö", "ü", "ÿ", "Ä", "Ë", "Ï", "Ö", "Ü", "Ã", "Õ", "Ñ", "â", "ê", "î", "ô", "û", "Â", "Ê", "Î", "Ô", "Û" };
+            string[] semAcento = new string[] { "c", "C", "a", "e", "i", "o", "u", "y", "A", "E", "I", "O", "U", "Y", "a", "e", "i", "o", "u", "A", "E", "I", "O", "U", "a", "o", "n", "a", "e", "i", "o", "u", "y", "A", "E", "I", "O", "U", "A", "O", "N", "a", "e", "i", "o", "u", "A", "E", "I", "O", "U" };
+
+            for (int i = 0; i < acentos.Length; i++)
+            {
+                str = str.Replace(acentos[i], semAcento[i]);
+            }
+            /** Troca os caracteres especiais da string por "" **/
+            string[] caracteresEspeciais = { "\\.", ",", "-", ":", "\\(", "\\)", "ª", "\\|", "\\\\", "°" };
+
+            for (int i = 0; i < caracteresEspeciais.Length; i++)
+            {
+                str = str.Replace(caracteresEspeciais[i], "");
+            }
+
+            /** Troca os espaços no início por "" **/
+            str = str.Replace("^\\s+", "");
+            /** Troca os espaços no início por "" **/
+            str = str.Replace("\\s+$", "");
+            /** Troca os espaços duplicados, tabulações e etc por " " **/
+            str = str.Replace("\\s+", " ");
+            return str;
+        }
     }
-
-
-
-
-    /// <summary>
-    /// Responsible for loading a WorkSheet from Sheet2 with
-    /// a condition for a column of dates.
-    /// </summary>
-    /// <param name="FileName"></param>
-    /// <param name="SheetName"></param>
-    /// <param name="TheDate"></param>
-    /// <returns></returns>
-    //public DataTable LoadData(string FileName, string SheetName, DateTime TheDate)
-    //{
-    //    System.Text.StringBuilder sb = new System.Text.StringBuilder();
-    //    DataTable dt = new DataTable();
-
-    //    using (OleDbConnection cn = new OleDbConnection
-    //    { ConnectionString = ConnectionString(FileName, "Yes") })
-    //    {
-
-    //        cn.Open();
-
-    //        using (OleDbCommand cmd = new OleDbCommand
-    //        {
-    //            CommandText = "SELECT [Dates], [Office Plan] FROM [Sheet2$] WHERE [Dates] = " + TheDate.ToString(),
-    //            Connection = cn
-    //        }
-    //         )
-
-    //        {
-    //            OleDbDataReader dr = cmd.ExecuteReader();
-    //            dt.Load(dr);
-    //        }
-
-    //        return dt;
-    //    }
-    // }
 }
