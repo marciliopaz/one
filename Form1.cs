@@ -1320,7 +1320,7 @@ namespace OneSolution
             string strTxt = "";
             string stLimit = "|";
 
-            string strPathFile = strDir + @"BlocoI.xls";
+            string strPathFile = strDir + @"Bloco I050.xls";
 
             string strCon =
               @"Provider=Microsoft.Jet.OLEDB.4.0;" +
@@ -1374,8 +1374,11 @@ namespace OneSolution
                              );
                 contI050++;
 
-                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
-                contI051++;
+                if (item.indicadorConta.ToString().Substring(0, 1) == "A")
+                {
+                    strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                    contI051++;
+                }
             }
 
             #endregion
@@ -1397,8 +1400,11 @@ namespace OneSolution
                              );
                 contI050++;
 
-                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
-                contI051++;
+                if (item.indicadorConta.ToString().Substring(0, 1) == "A")
+                {
+                    strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                    contI051++;
+                }
             }
             #endregion
 
@@ -1419,8 +1425,11 @@ namespace OneSolution
                              );
                 contI050++;
 
-                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
-                contI051++;
+                if (item.indicadorConta.ToString().Substring(0, 1) == "A")
+                {
+                    strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                    contI051++;
+                }
             }
             #endregion
 
@@ -1441,48 +1450,127 @@ namespace OneSolution
                              );
                 contI050++;
 
-                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
-                contI051++;
+                if (item.indicadorConta.ToString().Substring(0, 1) == "A")
+                {
+                    strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                    contI051++;
+                }
             }
             #endregion
 
             #region Trazer NIVEL 5
-            var rowNivel5 = (from n5 in rowsI050
+            //grupos i050
+            var groupedN5 = (rowsI050.GroupBy(x => new
+            {
+                cConta = x.codConta.ToString(),
+                dConta = x.descrConta.ToString(),
+                dtInclu = x.dtInclusao.ToString(),
+                indDC = x.indicadorConta.ToString(),
+                indNat = x.indicadorNatureza.ToString(),
+                nivelSup = x.codNivelSup.ToString(),
+                nivel = x.nivel.ToString()
+            })).ToList();
+
+            //loop em i050
+            foreach (var item in groupedN5)
+            {
+                // preenche as criaLinhaI050 
+                strTxt += criaLinhaI050(item.
+                    , item.indicadorNatureza
+                    , item.indicadorConta
+                    , item.nivel
+                    , item.codConta
+                    , item.codNivelSup
+                    , item.descrConta
+                 );
+                contI050++;
+                // buscar todos i051
+
+                // buscar todos i052
+
+            }
+
+
+            
+            //var rowNivel5 = (from n5 in rowsI050
+            //                 where n5.nivel.ToString() == "5"
+            //                 select n5).ToList();
+
+        //string itemAnterior = "";
+        //foreach (var item in rowNivel5)
+        //{
+        //    // Preenche registro I050 nivel 5
+
+        //    if (itemAnterior != (item.codConta.ToString() + item.descrConta.ToString()))
+        //    {
+        //        strTxt += criaLinhaI050(item.dtInclusao
+        //                        , item.indicadorNatureza
+        //                        , item.indicadorConta
+        //                        , item.nivel
+        //                        , item.codConta
+        //                        , item.codNivelSup
+        //                        , item.descrConta
+        //                     );
+        //        contI050++;
+
+        //        itemAnterior = item.codConta.ToString() + item.descrConta.ToString();
+        //    }
+        //}
+
+
+
+
+
+
+        var rowNivel5 = (from n5 in rowsI050
                              where n5.nivel.ToString() == "5"
+                                //&& n5.indicadorConta.ToString().Substring(0, 1) == "A"
                              select n5).ToList();
 
+            string itemAnterior = "";
             foreach (var item in rowNivel5)
             {
                 // Preenche registro I050 nivel 5
-                strTxt += criaLinhaI050(item.dtInclusao
-                                , item.indicadorNatureza
-                                , item.indicadorConta
-                                , item.nivel
-                                , item.codConta
-                                , item.codNivelSup
-                                , item.descrConta
-                             );
-                contI050++;
 
-                strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
-                contI051++;
+                if (itemAnterior != (item.codConta.ToString() + item.descrConta.ToString()))
+                {
+                    strTxt += criaLinhaI050(item.dtInclusao
+                                    , item.indicadorNatureza
+                                    , item.indicadorConta
+                                    , item.nivel
+                                    , item.codConta
+                                    , item.codNivelSup
+                                    , item.descrConta
+                                 );
+                    contI050++;
 
-                // Preenche registro I052
-                //01  REG
-                strTxt += stLimit;
-                strTxt += "I052";
+                    itemAnterior = item.codConta.ToString() + item.descrConta.ToString();
+                }
 
-                //02  COD_CCUS
-                strTxt += stLimit;
-                strTxt += item.codCentroCusto2.ToString().Trim();
 
-                //03 COD_AGL
-                strTxt += stLimit;
-                strTxt += item.codAglut.ToString().ToUpper().Trim();
+                if (item.indicadorConta.ToString().Substring(0, 1) == "A")
+                {
+                    strTxt += criaLinhaI051(item.codPlanoRef, item.codCentroCusto, item.codConta2);
+                    contI051++;
 
-                strTxt += stLimit;
-                strTxt += System.Environment.NewLine;
-                contI052++;
+                    // Preenche registro I052
+                    //01  REG
+                    strTxt += stLimit;
+                    strTxt += "I052";
+
+                    //02  COD_CCUS
+                    strTxt += stLimit;
+                    strTxt += item.codCentroCusto2.ToString().Trim();
+
+                    //03 COD_AGL
+                    strTxt += stLimit;
+                    strTxt += item.codAglut.ToString().ToUpper().Trim();
+
+                    strTxt += stLimit;
+                    strTxt += System.Environment.NewLine;
+                    contI052++;
+                }
+
             }
 
             #endregion
@@ -1869,17 +1957,21 @@ namespace OneSolution
                         if (r[0].ToString().Trim() != "2")
                         {
                             // Cria Registro I200
-                            if (i200 != r[1].ToString() + r[2].ToString() || i == 2)
+                            if (Convert.ToDateTime(r[1].ToString()).Year == 2018)
                             {
-                                stTxtGeral.Append(criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString()));
-                                contI200++;
+
+                                if (i200 != r[1].ToString() + r[2].ToString() || i == 2)
+                                {
+                                    stTxtGeral.Append(criaLinhaI200(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString()));
+                                    contI200++;
+                                }
+
+                                i200 = r[1].ToString() + r[2].ToString();
+
+                                // Cria Registro I250
+                                stTxtGeral.Append(criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString()));
+                                contI250++;
                             }
-
-                            i200 = r[1].ToString() + r[2].ToString();
-
-                            // Cria Registro I250
-                            stTxtGeral.Append(criaLinhaI250(r[5].ToString(), r[6].ToString(), r[7].ToString(), r[8].ToString(), r[10].ToString()));
-                            contI250++;
                         }
                     }
                     //});
@@ -2248,18 +2340,41 @@ namespace OneSolution
                                 fgPreencheuJ005 = true;
                             }
 
+
+                            //J00
+                            /*
+                            4 r[4].ToString()
+                            5 r[5].ToString() descricao aglutinacao
+                            6 indicacao do tipo T;D
+                            7 Nivel cod algutinacao
+                            8 Codigo de aglutinação de nivel superior
+                            Grupo do Balanço
+                             Valor Inicial  
+                             Situação de Saldo
+                              Valor Final 
+                              situação do Saldo
+                              Notas Explicativas
+
+
+                            */
                             strTxt += criaLinhaIJ100(
-                                r[4].ToString()
-                                , "D"
-                                , r[6].ToString()
-                                , r[14].ToString()
-                                , r[7].ToString()
-                                , r[15].ToString()
-                                , r[9].ToString()
-                                , r[12].ToString()
-                                , r[11].ToString()
-                                , ""
+                                r[4].ToString() // cod Agluti
+                                , r[6].ToString() //Indicador Tipo T ou D
+                                , r[7].ToString() // Nivel cod Agl
+                                , r[8].ToString() // codAglSup
+                                , r[9].ToString() // indGrpBalanco
+                                , r[8].ToString()// descrCodigoAlgutinacao
+                                , r[10].ToString() // VlCtaInicial
+                                , r[11].ToString() // indDC
+                                , r[12].ToString() //vlCtaFim
+                                , r[13].ToString() // indDCFim
                                 , "");
+
+                            //strTxt += criaLinhaIJ150(
+                            //     r[15].ToString(),
+                            //     r[21].ToString(),
+                            //     r[17].ToString(),
+
 
                             //strTxt += criaLinhaJ150(
                             //    "codAgl",
@@ -2640,7 +2755,7 @@ namespace OneSolution
 
             //02	QTD_LIN (total do arquivo)
             strTxt += stLimit;
-            strTxt += "734196";
+            strTxt += "733373";
 
 
             strTxt += stLimit;
