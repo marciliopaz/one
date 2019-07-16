@@ -2098,7 +2098,7 @@ namespace OneSolution
 
             //07  COD_HIST_PAD
             stTxt.Append(stLimit);
-            stTxt.Append(centroCusto);
+            stTxt.Append("");
 
             //08  HIST
             stTxt.Append(stLimit);
@@ -2154,13 +2154,19 @@ namespace OneSolution
                     stream.Close();
 
                     // Possui Dados no Excel
+                    string sI350 = "";
                     foreach (DataRow r in dt.Rows)
                     {
                         if (r[0].ToString().Trim() != "Data")
                         {
-                            strTxt += criaLinhaI350(r[0].ToString());
+                            if (sI350 != r[0].ToString())
+                            {
+                                strTxt += criaLinhaI350(r[0].ToString());
+                                contI350++;
+                            }
+
+                            sI350 = r[0].ToString();
                             strTxt += criaLinhaI355(r[1].ToString(), r[2].ToString(), r[3].ToString(), r[4].ToString());
-                            contI350++;
                             contI355++;
                         }
                     }
