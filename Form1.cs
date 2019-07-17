@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -46,6 +45,7 @@ namespace OneSolution
         private int cont9990 = 0;
         private int cont9999 = 0;
         private int cont9900 = 0;
+        private int contJ150 = 0;
         #endregion
 
         /*
@@ -64,8 +64,8 @@ namespace OneSolution
         public Form1()
         {
             InitializeComponent();
-            //strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
-            strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
+            strDir = @"C:\Users\marcilio\source\repos\OneSolution\arquivos\";
+            //strDir = @"C:\temp\DesenvTeste\One\One\Blocos\";
 
         }
 
@@ -692,15 +692,12 @@ namespace OneSolution
                     stDados.Append(preencheRegistroI155());
 
                     progressBar1.Value += 10;
-                    //strDados += preencheLancamentos();
-                    //strDados += preencheRegistroI350eI355();
-                    //strDados += preencheRegistroI990();
                     stDados.Append(preencheLancamentos());
                     stDados.Append(preencheRegistroI350eI355());
                     stDados.Append(preencheRegistroI990());
 
-                    //strDados += preencheRegistroJ001();
-                    //strDados += preencheRegistroJ005();
+                    stDados.Append(preencheRegistroJ001());
+                    stDados.Append(preencheRegistroJ005());
                     //strDados += preencheRegistroJ900();//falta preencher pedir dados
                     stDados.Append(preencheRegistroJ990());
 
@@ -2282,6 +2279,8 @@ namespace OneSolution
 
             strTxt += System.Environment.NewLine;
 
+            contJ001++;
+
             return strTxt;
         }
         #endregion
@@ -2321,13 +2320,13 @@ namespace OneSolution
                     //  Referencia
                     //  https://chrisbitting.com/2016/05/04/datatable-row-loop-csharp-performance-testing-linq-vs-select-vs-parallel-vs-for/
 
-                    string sval = "";
-                    StringBuilder sb = new StringBuilder();
-                    Parallel.For(0, dt.Rows.Count, rowi =>
-                    {
-                        sval = rowi.ToString() + "|" + dt.Rows[rowi][4];
-                        sb.Append(sval);
-                    });
+                    //string sval = "";
+                    //StringBuilder sb = new StringBuilder();
+                    //Parallel.For(0, dt.Rows.Count, rowi =>
+                    //{
+                    //    sval = rowi.ToString() + "|" + dt.Rows[rowi][4];
+                    //    sb.Append(sval);
+                    //});
 
                     //fim exemplo rapido
 
@@ -2345,6 +2344,7 @@ namespace OneSolution
                             {
                                 strTxt += criaLinhaIJ005(r[0].ToString(), r[1].ToString(), "1", r[3].ToString());
                                 fgPreencheuJ005 = true;
+                                contJ005++;
                             }
 
 
@@ -2374,11 +2374,18 @@ namespace OneSolution
                                 , r[12].ToString() //vlCtaFim
                                 , r[13].ToString() // indDCFim
                                 , "");
+                            contJ100++;
 
-                            //strTxt += criaLinhaIJ150(
-                            //     r[15].ToString(),
-                            //     r[21].ToString(),
-                            //     r[17].ToString(),
+                            strTxt += criaLinhaJ150(
+                                 r[15].ToString(),
+                                 r[17].ToString(),
+                                 r[18].ToString(),
+                                 "",
+                                 r[16].ToString(),
+                                 r[19].ToString(),
+                                 r[20].ToString(),
+                             "D", // D ou R,
+                             "");
 
 
                             //strTxt += criaLinhaJ150(
@@ -2391,6 +2398,7 @@ namespace OneSolution
                             //    "indDCcta",
                             //    "indGrpDre",
                             //    "notaExpRef");
+                            contJ150++;
                         }
                     }
                 }
@@ -2411,39 +2419,40 @@ namespace OneSolution
 
             //02	COD_AGL
             strTxt += stLimit;
-            strTxt += codAgl;
+            strTxt += codAgl.ToString();
 
             //03	IND_COD_AGL
             strTxt += stLimit;
-            strTxt += indCodAgl_TD;
+            strTxt += indCodAgl_TD.ToString();
 
             //04	NIVEL_AGL
             strTxt += stLimit;
-            strTxt += nivelAgl;
+            strTxt += nivelAgl.ToString();
 
             //05	COD_AGL_SUP
             strTxt += stLimit;
-            strTxt += codAglSup;
+            strTxt += codAglSup.ToString();
 
             //06	DESCR_COD_AGL
             strTxt += stLimit;
-            strTxt += descrCodAgl;
+            strTxt += descrCodAgl.ToString();
 
             //07	VL_CTA
             strTxt += stLimit;
-            strTxt += vlCta;
+            //strTxt += Convert.ToDouble(vlCta).ToString("F");
+            strTxt += vlCta.ToString();
 
             //08	IND_DC_CTA
             strTxt += stLimit;
-            strTxt += indDCcta;
+            strTxt += indDCcta.ToString();
 
             //09	IND_GRP_DRE
             strTxt += stLimit;
-            strTxt += indGrpDre;
+            strTxt += indGrpDre.ToString();
 
             //10	NOTA_EXP_REF
             strTxt += stLimit;
-            strTxt += notaExpRef;
+            strTxt += notaExpRef.ToString();
 
             strTxt += stLimit;
 
@@ -2706,12 +2715,13 @@ namespace OneSolution
             strTxt += "|9900|I350|" + contI350.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I355|" + contI355.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|I990|" + contI990.ToString() + "|" + System.Environment.NewLine;
-            strTxt += "|9900|J001|0|" + System.Environment.NewLine;
-            strTxt += "|9900|J005|0|" + System.Environment.NewLine;
-            strTxt += "|9900|J100|0|" + System.Environment.NewLine;
+            strTxt += "|9900|J001|" + contJ001.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|J005|" + contJ005.ToString() + "|" + System.Environment.NewLine;
+            strTxt += "|9900|J100|" + contJ100.ToString() + "|" +  System.Environment.NewLine;
+            strTxt += "|9900|J150|" + contJ150.ToString() + "|" + System.Environment.NewLine;
             strTxt += "|9900|J900|0|" + System.Environment.NewLine;
             strTxt += "|9900|J930|0|" + System.Environment.NewLine;
-            strTxt += "|9900|J990|1|" + System.Environment.NewLine;
+            strTxt += "|9900|J990|4|" + System.Environment.NewLine;
             strTxt += "|9900|9001|1|" + System.Environment.NewLine;
             strTxt += "|9900|9990|1|" + System.Environment.NewLine;
             strTxt += "|9900|9999|1|" + System.Environment.NewLine;
